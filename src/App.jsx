@@ -4,16 +4,15 @@ import {
     Plus, X, Hash, Search, Maximize2, Minimize2, Share2, MoreHorizontal, LayoutGrid, List, Disc, Trash2, 
     ChevronRight, ChevronDown, GitBranch, Sparkles, Eye, EyeOff, CornerDownRight, Move, Palette, Check, 
     ZoomIn, ZoomOut, RotateCcw, GripVertical, FileText, Pencil, Settings, Download, Upload, Monitor, Activity, Moon,
-    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid
+    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid, Tag, Wand2, Bot, Shield, FileText as FileTextIcon
 } from 'lucide-react';
 
 /**
- * ECHO ARCHIVE v2.9 (Clean Grid Update)
+ * ECHO ARCHIVE v3.6 (Minimal Legal Implementation)
  * Features:
- * - Background: Replaced Nebula with Dynamic Grid/Stars (Syncs with Pan/Zoom)
- * - Header: Removed Version Number for cleaner look
- * - Editor: Full Markdown Support & Toolbar
- * - All other features maintained
+ * - ⚖️ Legal: Minimal Impressum (Name/Email) + Privacy Policy
+ * - 🌍 Deployment: configured for VITE_GEMINI_API_KEY
+ * - ✨ AI: Auto-Tag, Smart Continue, Summarize
  */
 
 // --- Config: Palettes ---
@@ -33,9 +32,41 @@ const INITIAL_TAG_COLORS = {
 };
 
 const DEFAULT_SETTINGS = {
-    ambience: 'grid', // Default is now the Grid
+    ambience: 'grid', 
     animations: true,
     showGrid: true
+};
+
+// --- GEMINI API HELPER ---
+const callGeminiAPI = async (prompt) => {
+    // Lädt den API Key sicher aus den Netlify-Einstellungen
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
+
+    if (!apiKey) {
+        console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY in your deployment settings.");
+        return null;
+    }
+
+    try {
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            }
+        );
+        
+        if (!response.ok) throw new Error('API Error');
+        
+        const data = await response.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        return null;
+    }
 };
 
 // --- Custom Markdown Components ---
@@ -71,19 +102,61 @@ const getCategoryColor = (tags, colorMap) => {
 };
 
 const generateInitialNotes = () => [
-  { id: '1', title: 'Welcome to Echo', content: '# Echo Archive\n\nThis is your new **visual second brain**.\n\n## Features\n- Infinite Canvas\n- Markdown Support\n- World Domination\n\nTry pasting an image URL:\n![Space](https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80)\n\n#idea', x: 50, y: 50, tags: ['idea'] }
+  { id: '1', title: 'Welcome to Echo', content: '# Echo Archive\n\nReady for Launch! 🚀\n\n## Next Steps\n1. Go to Settings (Gear Icon)\n2. Open "Impressum"\n3. Check if your Name/Email is correct.\n\nAI Features are active and connected to the cloud.', x: 50, y: 50, tags: ['idea', 'welcome'] }
 ];
 
-// --- AMBIENT BACKGROUND (Dynamic Grid) ---
+// --- LEGAL TEXTS CONSTANTS ---
+// ⬇️⬇️⬇️ HIER DEINE DATEN EINTRAGEN ⬇️⬇️⬇️
+const LEGAL_TEXTS = {
+    impressum: `
+# Impressum
+
+## Betreiber der Seite
+[Calvin] [Lieberenz]
+
+## Kontakt
+E-Mail: [mail@clieberenz]
+
+## Redaktionell verantwortlich
+[Calvin] [Lieberenz]
+
+## Hinweis
+Dies ist ein privates, nicht-kommerzielles Projekt zu Demonstrationszwecken.
+Es werden keine Einnahmen erzielt.
+    `,
+    privacy: `
+# Datenschutzerklärung
+
+## 1. Datenschutz auf einen Blick
+**Allgemeine Hinweise**
+Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+
+## 2. Hosting (Netlify)
+Wir hosten die Inhalte unserer Website bei folgendem Anbieter:
+**Netlify**
+Anbieter ist die Netlify, Inc., 2325 3rd Street, Suite 215, San Francisco, California 94107, USA.
+Wenn Sie unsere Website besuchen, erfasst Netlify verschiedene Logfiles inklusive Ihrer IP-Adressen.
+Die Verwendung von Netlify erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer möglichst zuverlässigen Darstellung unserer Website.
+
+## 3. KI-Funktionen (Google Gemini API)
+Diese Anwendung nutzt Funktionen der Google Gemini API zur Textgenerierung und -analyse. 
+Anbieter ist Google Ireland Limited ("Google"), Gordon House, Barrow Street, Dublin 4, Irland.
+
+**Funktionsweise:**
+Wenn Sie die KI-Funktionen (z.B. "Auto-Tagging", "Zusammenfassen", "Weiterschreiben") aktiv durch Klicken eines Buttons nutzen, wird der Inhalt der aktuell geöffneten Notiz an die Server von Google gesendet, um die gewünschte Antwort zu generieren.
+
+**Datenverarbeitung:**
+Die Übermittlung erfolgt nur auf Ihre explizite Anforderung hin. Es werden keine personenbezogenen Daten dauerhaft gespeichert, sofern diese nicht im Text der Notiz selbst enthalten sind. Wir empfehlen, keine sensiblen persönlichen Daten in die Notizen einzugeben, wenn Sie die KI-Funktionen nutzen möchten.
+    `
+};
+
+// --- AMBIENT BACKGROUND ---
 const AmbientBackground = ({ mode, pan, zoom }) => {
-    // Mode 'grid' (formerly 'nebula' logic for grid)
     if (mode === 'grid' || mode === 'nebula') {
         const gridSize = 40 * zoom;
         const bgPos = `${pan.x}px ${pan.y}px`;
-
         return (
             <div className="absolute inset-0 pointer-events-none z-0 bg-[#050505] overflow-hidden">
-                {/* Moving Dot Grid */}
                 <div 
                     className="absolute inset-0 opacity-20 transition-none"
                     style={{
@@ -93,12 +166,10 @@ const AmbientBackground = ({ mode, pan, zoom }) => {
                         willChange: 'background-position, background-size'
                     }}
                 />
-                {/* Vignette Overlay */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050505_100%)] pointer-events-none" />
             </div>
         );
     }
-    // Default Deep Dark
     return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 bg-[#050505]">
              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900/10 to-[#050505]" />
@@ -106,8 +177,36 @@ const AmbientBackground = ({ mode, pan, zoom }) => {
     );
 };
 
+// --- LEGAL MODAL ---
+const LegalModal = ({ isOpen, onClose, type }) => {
+    if (!isOpen) return null;
+    const content = type === 'impressum' ? LEGAL_TEXTS.impressum : LEGAL_TEXTS.privacy;
+    const title = type === 'impressum' ? 'Impressum' : 'Privacy Policy';
+    
+    return (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
+            <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl h-[80vh] flex flex-col relative overflow-hidden">
+                <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0A0A0A] sticky top-0 z-10">
+                    <h2 className="text-xl font-light text-white flex items-center gap-2">
+                        <Shield size={20} className="text-cyan-400" /> {title}
+                    </h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors"><X size={24} /></button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                    <div className="prose prose-invert prose-sm max-w-none prose-headings:text-cyan-100 prose-p:text-gray-400">
+                        <ReactMarkdown children={content} />
+                    </div>
+                </div>
+                <div className="p-4 border-t border-white/10 bg-[#0A0A0A] text-center text-xs text-gray-600">
+                    Private Project. Non-Commercial.
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- SETTINGS MODAL ---
-const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImport, onReset }) => {
+const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImport, onReset, onOpenLegal }) => {
     if (!isOpen) return null;
     const fileInputRef = useRef(null);
     const handleImportClick = () => fileInputRef.current?.click();
@@ -126,21 +225,25 @@ const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImp
                             <button onClick={() => setSettings(s => ({...s, ambience: 'grid'}))} className={`flex-1 py-3 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all ${(settings.ambience === 'grid' || settings.ambience === 'nebula') ? 'bg-cyan-900/20 border-cyan-500/30 text-cyan-300' : 'border-white/5 text-gray-500 hover:bg-white/5'}`}><Grid size={16} /> Grid</button>
                         </div>
                     </div>
+                    
+                    {/* LEGAL SECTION */}
                     <div className="space-y-3">
-                        <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Performance</h3>
-                        <label className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/5 cursor-pointer group hover:border-white/10">
-                            <div className="flex items-center gap-3">
-                                <Activity size={16} className={settings.animations ? "text-green-400" : "text-gray-600"} />
-                                <div><div className="text-sm text-gray-200">Enable Animations</div><div className="text-[10px] text-gray-500">Pulse effects & flowing lines</div></div>
-                            </div>
-                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.animations ? 'bg-cyan-600' : 'bg-gray-700'}`} onClick={() => setSettings(s => ({...s, animations: !s.animations}))}><div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.animations ? 'left-6' : 'left-1'}`} /></div>
-                        </label>
+                        <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Legal & Info</h3>
+                        <div className="flex gap-2">
+                            <button onClick={() => onOpenLegal('impressum')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
+                                <FileTextIcon size={14} /> Impressum
+                            </button>
+                            <button onClick={() => onOpenLegal('privacy')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
+                                <Shield size={14} /> Privacy
+                            </button>
+                        </div>
                     </div>
+
                     <div className="space-y-3">
                         <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Data Management</h3>
                         <div className="grid grid-cols-2 gap-2">
-                            <button onClick={onExport} className="py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs"><Download size={14} /> Export Backup</button>
-                            <button onClick={handleImportClick} className="py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs"><Upload size={14} /> Import Backup</button>
+                            <button onClick={onExport} className="py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs"><Download size={14} /> Backup</button>
+                            <button onClick={handleImportClick} className="py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs"><Upload size={14} /> Restore</button>
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
                         </div>
                         <button onClick={onReset} className="w-full py-2 px-3 rounded-lg border border-red-900/30 bg-red-900/10 text-red-500 hover:bg-red-900/20 transition-all flex items-center justify-center gap-2 text-xs mt-2"><RotateCcw size={14} /> Reset Universe</button>
@@ -156,7 +259,6 @@ const MarkdownHelp = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
     const items = [
         { label: 'Heading 1', syntax: '# Text' },
-        { label: 'Heading 2', syntax: '## Text' },
         { label: 'Bold', syntax: '**Text**' },
         { label: 'Italic', syntax: '*Text*' },
         { label: 'List', syntax: '- Item' },
@@ -167,18 +269,8 @@ const MarkdownHelp = ({ isOpen, onClose }) => {
     ];
     return (
         <div className="absolute right-4 top-14 w-64 bg-[#0A0A0A] border border-white/10 rounded-xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2">
-            <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-3 flex justify-between items-center">
-                Markdown Guide
-                <button onClick={onClose}><X size={14} className="hover:text-white"/></button>
-            </h3>
-            <div className="space-y-2">
-                {items.map((item, i) => (
-                    <div key={i} className="flex justify-between text-xs text-gray-400 border-b border-white/5 pb-1 last:border-0">
-                        <span>{item.label}</span>
-                        <code className="bg-white/10 px-1 rounded text-cyan-300 font-mono">{item.syntax}</code>
-                    </div>
-                ))}
-            </div>
+            <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-3 flex justify-between items-center">Markdown Guide<button onClick={onClose}><X size={14} className="hover:text-white"/></button></h3>
+            <div className="space-y-2">{items.map((item, i) => (<div key={i} className="flex justify-between text-xs text-gray-400 border-b border-white/5 pb-1 last:border-0"><span>{item.label}</span><code className="bg-white/10 px-1 rounded text-cyan-300 font-mono">{item.syntax}</code></div>))}</div>
         </div>
     );
 };
@@ -224,7 +316,13 @@ const App = () => {
   const dragStartRef = useRef({ x: 0, y: 0 });
   const hasDraggedRef = useRef(false);
   const containerRef = useRef(null);
-  const textareaRef = useRef(null); 
+  const textareaRef = useRef(null);
+  const [tagInput, setTagInput] = useState(''); 
+  
+  // LEGAL & AI STATES
+  const [legalModalType, setLegalModalType] = useState(null); // 'impressum' | 'privacy' | null
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiStatus, setAiStatus] = useState(''); 
 
   // --- COMPUTED ---
   const groupedNotes = useMemo(() => {
@@ -339,8 +437,9 @@ const App = () => {
         const updated = { ...note, [field]: value };
         if (field === 'content') {
             const extractedTags = (value.match(/#[a-zA-Z0-9äöüÄÖÜß\/]+/g) || []).map(t => t.substring(1).toLowerCase());
-            updated.tags = [...new Set([...extractedTags])];
-            updated.tags.forEach(tag => {
+            const mergedTags = [...new Set([...note.tags, ...extractedTags])];
+            updated.tags = mergedTags;
+            extractedTags.forEach(tag => {
                 const root = tag.split('/')[0];
                 if (!tagColors[root] && root !== 'uncategorized') {
                     const randomColor = NEON_PALETTE[Math.floor(Math.random() * NEON_PALETTE.length)];
@@ -352,6 +451,113 @@ const App = () => {
       }
       return note;
     }));
+  };
+
+  const handleAddTag = (e) => {
+      if (e.key === 'Enter' && tagInput.trim()) {
+          e.preventDefault();
+          const cleanTag = tagInput.trim().toLowerCase().replace(/^#/, ''); 
+          const root = cleanTag.split('/')[0];
+          if (!tagColors[root] && root !== 'uncategorized') {
+               const randomColor = NEON_PALETTE[Math.floor(Math.random() * NEON_PALETTE.length)];
+               setTagColors(prev => ({ ...prev, [root]: randomColor }));
+          }
+          setNotes(prev => prev.map(n => {
+              if (n.id === activeNoteId) {
+                  return { ...n, tags: [...new Set([...n.tags, cleanTag])] };
+              }
+              return n;
+          }));
+          setTagInput('');
+      }
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+      setNotes(prev => prev.map(n => {
+          if (n.id === activeNoteId) {
+              return { ...n, tags: n.tags.filter(t => t !== tagToRemove) };
+          }
+          return n;
+      }));
+  };
+
+  // --- GEMINI FUNCTIONS ---
+  
+  const handleAiAutoTag = async () => {
+      if (!activeNote || !activeNote.content.trim()) return;
+      setIsAiLoading(true);
+      setAiStatus('tagging');
+      
+      const prompt = `Analyze the following text and generate 3 to 5 relevant tags. 
+      Format the output ONLY as a comma-separated list of tags in "category/subcategory" format (lowercase).
+      Example output: "work/meeting, tech/ai, planning/2024".
+      Do not include explanations or numbering.
+      
+      Text to analyze:
+      "${activeNote.content.substring(0, 1000)}..."`; 
+
+      const result = await callGeminiAPI(prompt);
+      
+      if (result) {
+          const newTags = result.split(',').map(t => t.trim().toLowerCase().replace(/['"`]/g, ''));
+          newTags.forEach(tag => {
+              const root = tag.split('/')[0];
+              if (!tagColors[root] && root !== 'uncategorized') {
+                  setTagColors(prev => ({ ...prev, [root]: NEON_PALETTE[Math.floor(Math.random() * NEON_PALETTE.length)] }));
+              }
+          });
+          
+          setNotes(prev => prev.map(n => {
+              if (n.id === activeNoteId) {
+                  return { ...n, tags: [...new Set([...n.tags, ...newTags])] };
+              }
+              return n;
+          }));
+      }
+      setIsAiLoading(false);
+      setAiStatus('');
+  };
+
+  const handleAiContinue = async () => {
+      if (!activeNote) return;
+      setIsAiLoading(true);
+      setAiStatus('writing');
+      
+      const prompt = `Continue the following note naturally. Maintain the tone and style. 
+      Add about 2-3 sentences or a bullet point list if appropriate.
+      
+      Current Note Content:
+      "${activeNote.content}"`;
+
+      const result = await callGeminiAPI(prompt);
+      
+      if (result) {
+          const newContent = activeNote.content + (activeNote.content.endsWith('\n') ? '' : '\n\n') + result;
+          handleUpdateNote(activeNote.id, 'content', newContent);
+      }
+      setIsAiLoading(false);
+      setAiStatus('');
+  };
+
+  const handleAiSummarize = async () => {
+      if (!activeNote) return;
+      setIsAiLoading(true);
+      setAiStatus('summarizing');
+      
+      const prompt = `Summarize the following text into a concise abstract (max 2 sentences).
+      
+      Text:
+      "${activeNote.content}"`;
+
+      const result = await callGeminiAPI(prompt);
+      
+      if (result) {
+          const summaryBlock = `> **Abstract:** ${result}\n\n`;
+          const newContent = summaryBlock + activeNote.content;
+          handleUpdateNote(activeNote.id, 'content', newContent);
+      }
+      setIsAiLoading(false);
+      setAiStatus('');
   };
 
   const handleInsertMarkdown = (prefix, suffix = '') => {
@@ -374,18 +580,35 @@ const App = () => {
   const handleCreateLinkedNote = (parentNote) => { const newId = Date.now().toString(); const inheritedTags = [...parentNote.tags]; const tagsString = inheritedTags.map(t => `#${t}`).join(' '); const newX = parentNote.x + (Math.random() * 30 - 15); const newY = parentNote.y + (Math.random() * 30 - 15); const newNote = { id: newId, title: 'Linked Note', content: `Related to "${parentNote.title}"...\n\n${tagsString}`, x: newX, y: newY, tags: inheritedTags }; setNotes([...notes, newNote]); setActiveNoteId(newId); };
   const toggleGroupCollapse = (group) => setCollapsedGroups(prev => ({...prev, [group]: !prev[group]}));
   const toggleCategoryFocus = (category, e) => { e.stopPropagation(); setFocusedCategory(prev => prev === category ? null : category); };
+  const handleOpenLegal = (type) => { setLegalModalType(type); };
 
   // --- RENDER ---
   return (
     <div className="fixed inset-0 w-full h-full bg-[#050505] text-gray-300 font-sans overflow-hidden selection:bg-white/20 selection:text-white overscroll-none touch-none" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
       <AmbientBackground mode={settings.ambience} pan={pan} zoom={zoom} />
-      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} settings={settings} setSettings={setSettings} onExport={handleExportData} onImport={handleImportData} onReset={handleResetUniverse} />
+      
+      {/* MODALS */}
+      <SettingsModal 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+        settings={settings} 
+        setSettings={setSettings} 
+        onExport={handleExportData} 
+        onImport={handleImportData} 
+        onReset={handleResetUniverse} 
+        onOpenLegal={handleOpenLegal}
+      />
+      
+      <LegalModal 
+        isOpen={!!legalModalType} 
+        onClose={() => setLegalModalType(null)} 
+        type={legalModalType} 
+      />
 
       {/* HUD & GRAPH */}
       <div className="absolute top-0 bottom-0 left-0 transition-all duration-75 ease-out z-10" style={{ width: activeNoteId ? `${100 - editorWidth}%` : '100%' }}>
         <div className="absolute top-6 left-6 z-30 flex flex-col items-start gap-4 pointer-events-none">
           <div>
-            {/* REMOVED VERSION NUMBER SPAN HERE */}
             <h1 className="text-base tracking-[0.2em] font-bold text-gray-500 uppercase flex items-center gap-3">Echo Archive</h1>
             {focusedCategory && <div className="mt-2 text-xs font-mono text-cyan-400 flex items-center gap-2 animate-pulse"><Eye size={12} /> FOCUS: {focusedCategory.toUpperCase()}</div>}
             <div className="flex items-center gap-4 mt-2 pointer-events-auto">{(pan.x !== 0 || pan.y !== 0 || zoom !== 1) && <button onClick={resetView} className="text-xs font-mono text-gray-500 hover:text-white flex items-center gap-2 transition-colors"><Move size={12} /> RESET ({Math.round(zoom * 100)}%)</button>}</div>
@@ -449,6 +672,19 @@ const App = () => {
                         <span className="uppercase tracking-wider text-sm">{activeRootCategory}</span>
                     </div>
                     <div className="flex items-center gap-3">
+                         {/* GEMINI SUMMARIZE BUTTON */}
+                        <button 
+                            onClick={handleAiSummarize} 
+                            disabled={isAiLoading}
+                            className={`p-2 rounded-md transition-all mr-2 flex items-center gap-2 border ${isAiLoading && aiStatus === 'summarizing' ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 animate-pulse' : 'bg-transparent border-transparent text-gray-500 hover:text-cyan-400 hover:bg-cyan-900/10'}`} 
+                            title="AI Summarize Note"
+                        >
+                            {isAiLoading && aiStatus === 'summarizing' ? <Bot size={16} className="animate-spin" /> : <Bot size={16} />}
+                            <span className="text-xs font-medium">ABSTRACT</span>
+                        </button>
+                        
+                        <div className="h-4 w-px bg-white/10 mx-1" />
+
                         <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`p-2 rounded-md transition-colors mr-2 flex items-center gap-2 ${isPreviewMode ? 'bg-cyan-900/30 text-cyan-400' : 'text-gray-500 hover:text-white'}`} title={isPreviewMode ? "Switch to Edit" : "Switch to Preview"}>{isPreviewMode ? <Eye size={16} /> : <Pencil size={16} />}<span className="text-xs font-medium">{isPreviewMode ? 'PREVIEW' : 'EDIT'}</span></button>
                         <div className="h-4 w-px bg-white/10 mx-1" />
                         <button onClick={() => handleDeleteNote(activeNote.id)} className="p-2.5 hover:bg-red-500/10 rounded-md text-gray-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
@@ -457,12 +693,51 @@ const App = () => {
                     </div>
                 </div>
                 <div className="flex-1 overflow-y-auto px-12 py-12 custom-scrollbar">
-                    <div className="max-w-xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    <div className="max-w-xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <input value={activeNote.title} onChange={(e) => handleUpdateNote(activeNote.id, 'title', e.target.value)} className="w-full bg-transparent text-4xl font-light text-white placeholder:text-gray-800 focus:outline-none" placeholder="Untitled Note" />
-                        <div className="flex flex-wrap gap-2">
-                            {activeNote.tags.map(tag => { const parts = tag.split('/'); const root = parts[0]; const color = tagColors[root] || tagColors.default; return ( <span key={tag} style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider"><Hash size={10} className="opacity-50" />{parts.map((part, index) => (<React.Fragment key={index}>{index > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}<span className={index === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span></React.Fragment>))}</span> )})}
-                            {activeNote.tags.length === 0 && <span className="text-xs text-gray-700 font-mono flex items-center gap-2">Type <span className="text-gray-500">#tag</span> to link.</span>}
+                        
+                        {/* TAG INPUT AREA */}
+                        <div className="flex flex-wrap gap-2 items-center">
+                            {activeNote.tags.map(tag => {
+                                const parts = tag.split('/');
+                                const root = parts[0];
+                                const color = tagColors[root] || tagColors.default;
+                                return (
+                                    <span key={tag} style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider group cursor-default">
+                                        <Hash size={10} className="opacity-50" />
+                                        {parts.map((part, index) => (
+                                            <React.Fragment key={index}>
+                                                {index > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}
+                                                <span className={index === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span>
+                                            </React.Fragment>
+                                        ))}
+                                        <button onClick={(e) => { e.stopPropagation(); handleRemoveTag(tag); }} className="ml-1 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"><X size={10} /></button>
+                                    </span>
+                                )
+                            })}
+                            
+                            <div className="relative flex items-center group">
+                                <Tag size={12} className="absolute left-2 text-gray-600 group-focus-within:text-cyan-500 transition-colors" />
+                                <input 
+                                    value={tagInput}
+                                    onChange={(e) => setTagInput(e.target.value)}
+                                    onKeyDown={handleAddTag}
+                                    placeholder="Add tag (e.g. school/math)" 
+                                    className="bg-white/5 hover:bg-white/10 focus:bg-black border border-transparent focus:border-cyan-900/50 rounded-full py-1 pl-7 pr-3 text-xs text-gray-300 placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all w-48"
+                                />
+                            </div>
+
+                            {/* GEMINI AUTO TAG BUTTON */}
+                            <button 
+                                onClick={handleAiAutoTag}
+                                disabled={isAiLoading}
+                                className={`ml-1 p-1.5 rounded-full transition-all border ${isAiLoading && aiStatus === 'tagging' ? 'border-purple-500 bg-purple-500/20 text-purple-300 animate-pulse' : 'border-white/5 bg-white/5 text-gray-500 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10'}`}
+                                title="AI Auto-Tagging"
+                            >
+                                <Sparkles size={12} />
+                            </button>
                         </div>
+                        
                         <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-6" />
                         
                         {/* MARKDOWN TOOLBAR & HELP */}
@@ -476,7 +751,21 @@ const App = () => {
                                 <button onClick={() => handleInsertMarkdown('`', '`')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Code"><CodeIcon size={16}/></button>
                                 <button onClick={() => handleInsertMarkdown('[', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Link"><LinkIcon size={16}/></button>
                                 <button onClick={() => handleInsertMarkdown('![', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Image"><ImageIcon size={16}/></button>
+                                
                                 <div className="h-4 w-px bg-white/10 mx-1" />
+                                
+                                {/* GEMINI SMART CONTINUE BUTTON */}
+                                <button 
+                                    onClick={handleAiContinue} 
+                                    disabled={isAiLoading}
+                                    className={`p-1.5 rounded transition-all flex items-center gap-1 ${isAiLoading && aiStatus === 'writing' ? 'text-green-400 bg-green-900/20 animate-pulse' : 'text-gray-400 hover:text-green-400 hover:bg-green-900/10'}`} 
+                                    title="AI Smart Continue"
+                                >
+                                    <Wand2 size={16} />
+                                </button>
+
+                                <div className="h-4 w-px bg-white/10 mx-1" />
+                                
                                 <button onClick={() => setShowMarkdownHelp(!showMarkdownHelp)} className="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/20 rounded transition-colors" title="Markdown Help"><HelpCircle size={16}/></button>
                                 <MarkdownHelp isOpen={showMarkdownHelp} onClose={() => setShowMarkdownHelp(false)} />
                             </div>
@@ -494,90 +783,6 @@ const App = () => {
       </div>
     </div>
   );
-};
-
-// ... GraphView remains unchanged ...
-const GraphView = ({ notes, connections, activeId, onSelect, pan, zoom, isDragging, tagColors, connectedNodeIds, settings }) => {
-    // Only animate if settings allow it (default true)
-    const anims = settings.animations;
-
-    return (
-        <svg className="w-full h-full pointer-events-none">
-            <defs>
-                <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-                <style>{`
-                    @keyframes flow-dashed {
-                        to { stroke-dashoffset: -8; }
-                    }
-                    @keyframes pulse-line {
-                        0%, 100% { stroke-opacity: 0.6; stroke-width: 1.5px; }
-                        50% { stroke-opacity: 1; stroke-width: 2.5px; }
-                    }
-                    @keyframes breathe-node {
-                        0%, 100% { r: 5px; opacity: 0.8; }
-                        50% { r: 6px; opacity: 1; }
-                    }
-                    .animate-flow {
-                        animation: flow-dashed 1s linear infinite;
-                    }
-                    .animate-pulse-line {
-                        animation: pulse-line 2.5s ease-in-out infinite;
-                    }
-                    .animate-breathe-node {
-                        animation: breathe-node 4s ease-in-out infinite;
-                    }
-                `}</style>
-            </defs>
-            <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
-                {connections.map((link, i) => {
-                    const isActive = link.source.id === activeId || link.target.id === activeId;
-                    const isDimmed = activeId && !isActive; 
-                    const sourceColor = getCategoryColor(link.source.tags, tagColors);
-                    // Higher opacity for active connections
-                    const finalOpacity = isDragging && !isActive ? (isDragging ? 0.3 : 0.05) : (isActive ? 0.8 : (isDimmed ? 0.05 : 0.2));
-                    
-                    const isExactMatch = link.type === 'exact';
-                    
-                    return (
-                        <line 
-                            key={i} 
-                            x1={`${link.source.x}%`} y1={`${link.source.y}%`} 
-                            x2={`${link.target.x}%`} y2={`${link.target.y}%`} 
-                            stroke={isActive ? sourceColor : (isDragging ? "#666" : "#333")} 
-                            strokeWidth={isActive ? (isExactMatch ? "2.5" : "1.5") : "0.5"} 
-                            strokeOpacity={finalOpacity}
-                            strokeDasharray={isExactMatch ? "0" : "4 4"} 
-                            className={`transition-all duration-300 ease-out ${anims && !isExactMatch ? 'animate-flow' : ''} ${anims && isExactMatch && isActive ? 'animate-pulse-line' : ''}`}
-                        />
-                    );
-                })}
-                {notes.map((note) => {
-                    const isActive = note.id === activeId;
-                    const isConnected = connectedNodeIds?.has(note.id);
-                    const isDimmed = activeId && !isActive && !isConnected; 
-                    const color = getCategoryColor(note.tags, tagColors);
-                    const hasSubCategory = note.tags.some(t => t.includes('/'));
-
-                    return (
-                        <g key={note.id} onClick={(e) => { e.stopPropagation(); onSelect(note.id); }} className={`cursor-pointer group pointer-events-auto transition-opacity duration-300 ${isDimmed && !isDragging ? 'opacity-30' : 'opacity-100'}`}>
-                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r="20" fill="transparent" />
-                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r={isActive ? "12" : (isDragging ? "6" : "0")} fill="none" stroke={color} strokeOpacity={isDragging ? 0.5 : 0.2} strokeWidth="1" className="transition-all duration-500 ease-out" />
-                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r={isActive ? "5" : "3"} fill={isActive || isDragging || isConnected ? color : "#262626"} stroke={isActive ? "white" : "transparent"} strokeWidth="1" className={`transition-all duration-300 group-hover:fill-gray-200 ${anims ? 'animate-breathe-node' : ''}`} style={{ filter: isActive || isConnected ? "url(#glow-strong)" : "none" }} />
-                            
-                            {hasSubCategory && (
-                                <circle cx={`${note.x}%`} cy={`${note.y}%`} r="1" fill="white" className="pointer-events-none" />
-                            )}
-
-                            <text x={`${note.x}%`} y={`${note.y + 6}%`} textAnchor="middle" className={`text-xs fill-gray-400 font-mono font-medium pointer-events-none transition-all duration-300 ${isDragging || isActive ? 'opacity-100 translate-y-0 fill-white' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}`}>{note.title}</text>
-                        </g>
-                    );
-                })}
-            </g>
-        </svg>
-    );
 };
 
 export default App;
