@@ -4,15 +4,17 @@ import {
     Plus, X, Hash, Search, Maximize2, Minimize2, Share2, MoreHorizontal, LayoutGrid, List, Disc, Trash2, 
     ChevronRight, ChevronDown, GitBranch, Sparkles, Eye, EyeOff, CornerDownRight, Move, Palette, Check, 
     ZoomIn, ZoomOut, RotateCcw, GripVertical, FileText, Pencil, Settings, Download, Upload, Monitor, Activity, Moon,
-    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid, Tag, Wand2, Bot, Shield, FileText as FileTextIcon
+    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid, Tag, Wand2, Bot, Shield, FileText as FileTextIcon, Terminal, Smartphone, Globe, Cpu, Zap, Layout, ChevronRight as ChevronRightIcon, Layers, Lock, Menu
 } from 'lucide-react';
 
 /**
- * ECHO ARCHIVE v3.7 (Preview Compatible & Minimal Legal)
+ * ECHO ARCHIVE v1.0 (Official Release)
  * Features:
- * - ⚖️ Legal: Minimal Impressum (Name/Email) + Privacy Policy
- * - 🌍 Deployment Note: Uncomment 'import.meta.env' line for Netlify!
- * - ✨ AI: Auto-Tag, Smart Continue, Summarize
+ * - 📚 Tutorial Node: First note is now a comprehensive guide
+ * - 🏠 Navigation: Click "Echo Archive" to return to Landing Page
+ * - 📱 Touch Support: Added onTouch handlers for map navigation on mobile
+ * - 📐 Responsive Editor: Takes 100% width on mobile screens
+ * - ✨ AI: Gemini Integration
  */
 
 // --- Config: Palettes ---
@@ -28,6 +30,9 @@ const INITIAL_TAG_COLORS = {
   'school': '#10b981',
   'tech': '#06b6d4',
   'idea': '#f43f5e',
+  'guide': '#eab308',     // Neon Yellow
+  'tutorial': '#a855f7',  // Neon Purple
+  'welcome': '#06b6d4',   // Neon Cyan
   'default': '#737373'
 };
 
@@ -39,15 +44,12 @@ const DEFAULT_SETTINGS = {
 
 // --- GEMINI API HELPER ---
 const callGeminiAPI = async (prompt) => {
-    // ⚠️ WICHTIG FÜR DEPLOYMENT (NETLIFY/VERCEL):
-    // Entferne die zwei Schrägstriche (//) vor der nächsten Zeile, wenn du den Code in VS Code für Netlify nutzt:
+    // ⚠️ IMPORTANT FOR DEPLOYMENT (NETLIFY/VERCEL):
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
-    
-    // Für die Vorschau HIER im Editor nutzen wir einen leeren String, um den Fehler zu vermeiden:
     //const apiKey = ""; 
 
     if (!apiKey) {
-        console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY in your deployment settings or uncomment the line in src/App.jsx.");
+        console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY.");
         return null;
     }
 
@@ -62,9 +64,7 @@ const callGeminiAPI = async (prompt) => {
                 })
             }
         );
-        
         if (!response.ok) throw new Error('API Error');
-        
         const data = await response.json();
         return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     } catch (error) {
@@ -75,19 +75,19 @@ const callGeminiAPI = async (prompt) => {
 
 // --- Custom Markdown Components ---
 const MarkdownComponents = {
-    h1: ({node, ...props}) => <h1 className="text-3xl font-light mb-6 mt-2 text-cyan-400 border-b border-white/10 pb-4" {...props} />,
-    h2: ({node, ...props}) => <h2 className="text-2xl font-light mb-4 mt-8 text-violet-400" {...props} />,
-    h3: ({node, ...props}) => <h3 className="text-xl font-medium mb-3 mt-6 text-white" {...props} />,
-    p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-gray-300" {...props} />,
+    h1: ({node, ...props}) => <h1 className="text-2xl md:text-3xl font-light mb-6 mt-2 text-cyan-400 border-b border-white/10 pb-4" {...props} />,
+    h2: ({node, ...props}) => <h2 className="text-xl md:text-2xl font-light mb-4 mt-8 text-violet-400" {...props} />,
+    h3: ({node, ...props}) => <h3 className="text-lg md:text-xl font-medium mb-3 mt-6 text-white" {...props} />,
+    p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-gray-300 text-sm md:text-base" {...props} />,
     ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4 space-y-1 text-gray-300 marker:text-cyan-500/50" {...props} />,
     ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4 space-y-1 text-gray-300 marker:text-cyan-500/50" {...props} />,
     li: ({node, ...props}) => <li className="pl-1" {...props} />,
     a: ({node, ...props}) => <a className="text-cyan-400 hover:text-cyan-300 underline underline-offset-4 decoration-cyan-400/30 transition-colors" target="_blank" rel="noopener noreferrer" {...props} />,
-    blockquote: ({node, ...props}) => <blockquote className="border-l-2 border-cyan-500/50 pl-4 py-1 my-6 italic text-gray-400 bg-white/5 rounded-r-lg" {...props} />,
+    blockquote: ({node, ...props}) => <blockquote className="border-l-2 border-cyan-500/50 pl-4 py-1 my-6 italic text-gray-400 bg-white/5 rounded-r-lg text-sm" {...props} />,
     code: ({node, inline, ...props}) => inline 
-        ? <code className="bg-white/10 rounded px-1.5 py-0.5 font-mono text-sm text-cyan-200" {...props} />
-        : <div className="bg-[#0A0A0A] border border-white/10 rounded-lg p-4 my-4 overflow-x-auto"><code className="font-mono text-sm text-gray-300 block" {...props} /></div>,
-    img: ({node, ...props}) => <img className="rounded-lg border border-white/10 my-6 w-full object-cover max-h-[500px]" {...props} />,
+        ? <code className="bg-white/10 rounded px-1.5 py-0.5 font-mono text-xs md:text-sm text-cyan-200" {...props} />
+        : <div className="bg-[#0A0A0A] border border-white/10 rounded-lg p-4 my-4 overflow-x-auto"><code className="font-mono text-xs md:text-sm text-gray-300 block" {...props} /></div>,
+    img: ({node, ...props}) => <img className="rounded-lg border border-white/10 my-6 w-full object-cover max-h-[300px] md:max-h-[500px]" {...props} />,
     table: ({node, ...props}) => <div className="overflow-x-auto my-6 border border-white/10 rounded-lg"><table className="w-full text-left text-sm" {...props} /></div>,
     thead: ({node, ...props}) => <thead className="bg-white/5 text-gray-200" {...props} />,
     th: ({node, ...props}) => <th className="px-4 py-3 font-medium border-b border-white/10" {...props} />,
@@ -96,7 +96,7 @@ const MarkdownComponents = {
 };
 
 const getCategoryColor = (tags, colorMap) => {
-  if (!tags || tags.length === 0) return colorMap['default'];
+  if (!tags || tags.length ===0) return colorMap['default'];
   const mainTag = tags.find(t => {
       const root = t.split('/')[0];
       return colorMap[root];
@@ -106,51 +106,74 @@ const getCategoryColor = (tags, colorMap) => {
 };
 
 const generateInitialNotes = () => [
-  { id: '1', title: 'Welcome to Echo', content: '# Echo Archive v3.7\n\nReady for Launch! 🚀\n\n## Next Steps\n1. Go to Settings (Gear Icon)\n2. Open "Impressum"\n3. Check if your Name/Email is correct.\n\nAI Features are configured via Netlify Environment Variables.', x: 50, y: 50, tags: ['idea', 'welcome'] }
+  { 
+      id: '1', 
+      title: 'Echo Manual v1.0', 
+      content: `# Welcome to Echo Archive v1.0 🌌
+
+This is your new spatial knowledge base. Here is a quick guide on how to navigate and use the system.
+
+## 📝 Writing with Markdown
+Echo supports standard Markdown for rich text formatting. Try using the toolbar above or type directly:
+
+- **Bold** text: \`**text**\`
+- *Italic* text: \`*text*\`
+- [Links](https://echoarchive.tech): \`[Link](url)\`
+- \`Code snippets\`
+- > Blockquotes for citations
+
+## ✨ AI Capabilities (Gemini Powered)
+Look for the special icons in the editor toolbar to use AI assistance:
+
+1.  **Sparkles (✨) - Auto-Tagging:** Analyzes your text and automatically suggests relevant categories/tags.
+    
+2.  **Magic Wand (🪄) - Smart Continue:** Stuck? Click this to let the AI write the next paragraph for you based on context.
+
+3.  **Bot (🤖) - Abstract:** Generates a concise summary (Abstract) at the very top of your note.
+
+## 🗺️ Navigation
+- **PC:** Right-click & drag to move. Scroll to zoom. Click nodes to open.
+- **Mobile:** Swipe to pan. Pinch to zoom.
+
+*Start creating your constellation now! Click "New Root" to begin.*`, 
+      x: 50, 
+      y: 50, 
+      tags: ['guide', 'tutorial', 'welcome'] 
+  }
 ];
 
 // --- LEGAL TEXTS CONSTANTS ---
-// ⬇️⬇️⬇️ HIER DEINE DATEN EINTRAGEN ⬇️⬇️⬇️
+// ⬇️⬇️⬇️ ENTER YOUR DATA HERE ⬇️⬇️⬇️
 const LEGAL_TEXTS = {
     impressum: `
-# Impressum
+# Imprint (Impressum)
 
-## Betreiber der Seite
-[Calvin] [Lieberenz]
+## Operator
+[Your First Name] [Your Last Name]
 
-## Kontakt
-E-Mail: [mail@clieberenz]
+## Contact
+E-Mail: [Your E-Mail Address]
 
-## Redaktionell verantwortlich
-[Calvin] [Lieberenz]
+## Editorial Responsibility
+[Your First Name] [Your Last Name]
 
-## Hinweis
-Dies ist ein privates, nicht-kommerzielles Projekt zu Demonstrationszwecken.
-Es werden keine Einnahmen erzielt.
+## Note
+This is a private, non-commercial project for demonstration purposes.
+No revenue is generated.
     `,
     privacy: `
-# Datenschutzerklärung
+# Privacy Policy (Datenschutzerklärung)
 
-## 1. Datenschutz auf einen Blick
-**Allgemeine Hinweise**
-Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren personenbezogenen Daten passiert, wenn Sie diese Website besuchen. Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+## 1. General Information
+The following notes provide a simple overview of what happens to your personal data when you visit this website.
 
 ## 2. Hosting (Netlify)
-Wir hosten die Inhalte unserer Website bei folgendem Anbieter:
-**Netlify**
-Anbieter ist die Netlify, Inc., 2325 3rd Street, Suite 215, San Francisco, California 94107, USA.
-Wenn Sie unsere Website besuchen, erfasst Netlify verschiedene Logfiles inklusive Ihrer IP-Adressen.
-Die Verwendung von Netlify erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Wir haben ein berechtigtes Interesse an einer möglichst zuverlässigen Darstellung unserer Website.
+We host the content of our website with the following provider: Netlify Inc.
+The use of Netlify is based on Art. 6 para. 1 lit. f GDPR (DSGVO).
 
-## 3. KI-Funktionen (Google Gemini API)
-Diese Anwendung nutzt Funktionen der Google Gemini API zur Textgenerierung und -analyse. 
-Anbieter ist Google Ireland Limited ("Google"), Gordon House, Barrow Street, Dublin 4, Irland.
-
-**Funktionsweise:**
-Wenn Sie die KI-Funktionen (z.B. "Auto-Tagging", "Zusammenfassen", "Weiterschreiben") aktiv durch Klicken eines Buttons nutzen, wird der Inhalt der aktuell geöffneten Notiz an die Server von Google gesendet, um die gewünschte Antwort zu generieren.
-
-**Datenverarbeitung:**
-Die Übermittlung erfolgt nur auf Ihre explizite Anforderung hin. Es werden keine personenbezogenen Daten dauerhaft gespeichert, sofern diese nicht im Text der Notiz selbst enthalten sind. Wir empfehlen, keine sensiblen persönlichen Daten in die Notizen einzugeben, wenn Sie die KI-Funktionen nutzen möchten.
+## 3. AI Functions (Google Gemini API)
+This application uses functions of the Google Gemini API for text generation.
+Text is only transmitted to Google upon your explicit request (button click). No personal data is stored permanently unless included in the text itself.
     `
 };
 
@@ -181,6 +204,161 @@ const AmbientBackground = ({ mode, pan, zoom }) => {
     );
 };
 
+// --- NEW: MINIMAL LANDING PAGE WITH TRANSITION ---
+const LandingPage = ({ onEnter, onInstall, installAvailable, isExiting }) => {
+    const [activeTab, setActiveTab] = useState('start'); // 'start' | 'modules' | 'about'
+
+    return (
+        <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505] text-white font-sans overflow-hidden p-6 transition-all duration-1000 ease-in-out ${isExiting ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
+            <AmbientBackground mode="grid" pan={{x:0, y:0}} zoom={1} />
+            
+            {/* Main Content */}
+            <div className="z-10 w-full max-w-4xl flex flex-col items-center animate-in fade-in zoom-in duration-1000">
+                
+                {/* Minimal Header */}
+                <div className="mb-10 md:mb-16 text-center relative group">
+                    <div className="absolute -inset-10 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition duration-1000"></div>
+                    <h1 className="text-5xl md:text-8xl font-light tracking-[0.2em] text-white mb-2 select-none">
+                        ECHO
+                    </h1>
+                    <h1 className="text-5xl md:text-8xl font-bold tracking-tighter text-white/90 select-none">
+                        ARCHIVE
+                    </h1>
+                    <div className="h-px w-24 md:w-32 bg-cyan-500 mx-auto mt-6 md:mt-8 mb-4"></div>
+                    <p className="text-[10px] md:text-sm font-mono text-cyan-500 uppercase tracking-[0.3em] opacity-80">
+                        Intelligent Knowledge Space
+                    </p>
+                </div>
+
+                {/* Modern Navigation Tabs */}
+                <div className="flex gap-6 md:gap-16 mb-10 md:mb-16 border-b border-white/10 pb-4 overflow-x-auto max-w-full px-4">
+                    <button 
+                        onClick={() => setActiveTab('start')}
+                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'start' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
+                    >
+                        Terminal
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('modules')}
+                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'modules' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
+                    >
+                        Modules
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('about')}
+                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'about' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
+                    >
+                        About
+                    </button>
+                </div>
+
+                {/* Dynamic Content Area */}
+                <div className="w-full min-h-[300px] flex flex-col items-center justify-start px-4">
+                    
+                    {activeTab === 'start' && (
+                        <div className="flex flex-col items-center gap-6 md:gap-8 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <p className="text-center text-gray-300 font-light text-sm md:text-lg leading-relaxed mb-4">
+                                Welcome to your personal archive. <br/>
+                                Organize ideas and knowledge in a spatial constellation instead of folders.
+                            </p>
+
+                            <button 
+                                onClick={onEnter}
+                                className="group w-full py-4 md:py-5 bg-white hover:bg-cyan-400 text-black font-bold text-xs md:text-sm tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-4 rounded-sm shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]"
+                            >
+                                <span className="w-2 md:w-2.5 h-2 md:h-2.5 bg-black rounded-full animate-pulse"></span>
+                                Initialize System
+                            </button>
+
+                            {installAvailable && (
+                                <button 
+                                    onClick={onInstall}
+                                    className="w-full py-3 md:py-4 border border-white/10 hover:border-white/40 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 rounded-sm"
+                                >
+                                    <Download size={14} /> Install App
+                                </button>
+                            )}
+                        </div>
+                    )}
+
+                    {activeTab === 'modules' && (
+                        <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-in fade-in slide-in-from-right-4 duration-500">
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
+                                <div className="p-3 bg-cyan-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                                    <Bot size={24} className="text-cyan-400" />
+                                </div>
+                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Gemini AI</h3>
+                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
+                                    Intelligent assistance for auto-tagging, continuing text, and summarizing your notes.
+                                </p>
+                            </div>
+
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
+                                <div className="p-3 bg-blue-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                                    <Globe size={24} className="text-blue-400" />
+                                </div>
+                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">3D Space</h3>
+                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
+                                    Visual representation of your thoughts as a connected star system. Rediscover connections.
+                                </p>
+                            </div>
+
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
+                                <div className="p-3 bg-purple-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
+                                    <Lock size={24} className="text-purple-400" />
+                                </div>
+                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Privacy First</h3>
+                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
+                                    Your data stays local in the browser. No cloud storage (unless actively using AI).
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'about' && (
+                        <div className="w-full max-w-lg space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-center">
+                            <div>
+                                <h2 className="text-2xl md:text-3xl font-light text-white mb-4">
+                                    About the Project
+                                </h2>
+                                <p className="text-gray-400 text-xs md:text-sm leading-relaxed">
+                                    Echo Archive was born from the idea that our thoughts are not linear. 
+                                    Why should our notes be? <br/><br/>
+                                    This project is an experimental interface between human creativity and 
+                                    artificial intelligence, wrapped in an immersive design.
+                                </p>
+                            </div>
+                            
+                            <div className="pt-6 md:pt-8 border-t border-white/10 flex justify-center gap-8 md:gap-12">
+                                <div className="text-center">
+                                    <div className="text-xl md:text-2xl font-bold text-cyan-500 mb-1">1.0</div>
+                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Version</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-xl md:text-2xl font-bold text-blue-500 mb-1">React</div>
+                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Core</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-xl md:text-2xl font-bold text-purple-500 mb-1">ThreeJS</div>
+                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Engine</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+            </div>
+            
+            {/* Footer Status */}
+            <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-6 md:gap-12 text-[10px] md:text-xs text-gray-600 font-mono pointer-events-none select-none uppercase tracking-widest">
+                <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span> Ready</span>
+                <span>Secure</span>
+                <span>© 2025</span>
+            </div>
+        </div>
+    );
+};
+
 // --- LEGAL MODAL ---
 const LegalModal = ({ isOpen, onClose, type }) => {
     if (!isOpen) return null;
@@ -188,7 +366,7 @@ const LegalModal = ({ isOpen, onClose, type }) => {
     const title = type === 'impressum' ? 'Impressum' : 'Privacy Policy';
     
     return (
-        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
+        <div className="absolute inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
             <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl h-[80vh] flex flex-col relative overflow-hidden">
                 <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0A0A0A] sticky top-0 z-10">
                     <h2 className="text-xl font-light text-white flex items-center gap-2">
@@ -229,20 +407,17 @@ const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImp
                             <button onClick={() => setSettings(s => ({...s, ambience: 'grid'}))} className={`flex-1 py-3 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all ${(settings.ambience === 'grid' || settings.ambience === 'nebula') ? 'bg-cyan-900/20 border-cyan-500/30 text-cyan-300' : 'border-white/5 text-gray-500 hover:bg-white/5'}`}><Grid size={16} /> Grid</button>
                         </div>
                     </div>
-                    
-                    {/* LEGAL SECTION */}
                     <div className="space-y-3">
                         <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Legal & Info</h3>
                         <div className="flex gap-2">
                             <button onClick={() => onOpenLegal('impressum')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
-                                <FileTextIcon size={14} /> Impressum
+                                <FileTextIcon size={14} /> Imprint
                             </button>
                             <button onClick={() => onOpenLegal('privacy')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
                                 <Shield size={14} /> Privacy
                             </button>
                         </div>
                     </div>
-
                     <div className="space-y-3">
                         <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Data Management</h3>
                         <div className="grid grid-cols-2 gap-2">
@@ -281,6 +456,19 @@ const MarkdownHelp = ({ isOpen, onClose }) => {
 
 const App = () => {
   // --- STATE ---
+  const [hasEntered, setHasEntered] = useState(false); 
+  const [isExitingLanding, setIsExitingLanding] = useState(false); 
+  const [installPrompt, setInstallPrompt] = useState(null); 
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for Mobile
+  useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [notes, setNotes] = useState(() => {
     const saved = localStorage.getItem('echo-notes');
     return saved ? JSON.parse(saved) : generateInitialNotes();
@@ -303,6 +491,38 @@ const App = () => {
   useEffect(() => { localStorage.setItem('echo-colors', JSON.stringify(tagColors)); }, [tagColors]);
   useEffect(() => { localStorage.setItem('echo-settings', JSON.stringify(settings)); }, [settings]);
 
+  // PWA INSTALL LOGIC
+  useEffect(() => {
+      const handler = (e) => {
+          e.preventDefault();
+          setInstallPrompt(e);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallClick = async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') {
+          setInstallPrompt(null);
+      }
+  };
+
+  const handleEnterSystem = () => {
+      setIsExitingLanding(true);
+      setTimeout(() => {
+          setHasEntered(true);
+      }, 1000); 
+  };
+  
+  // Funktion um zur Landing Page zurückzukehren
+  const handleReturnToLanding = () => {
+    setHasEntered(false);
+    setIsExitingLanding(false);
+  };
+
   const [activeNoteId, setActiveNoteId] = useState('1'); 
   const [showStarLog, setShowStarLog] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -324,7 +544,7 @@ const App = () => {
   const [tagInput, setTagInput] = useState(''); 
   
   // LEGAL & AI STATES
-  const [legalModalType, setLegalModalType] = useState(null); // 'impressum' | 'privacy' | null
+  const [legalModalType, setLegalModalType] = useState(null); 
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiStatus, setAiStatus] = useState(''); 
 
@@ -411,6 +631,31 @@ const App = () => {
       setPan({ x: newX, y: newY });
   };
   const handleMouseUp = () => { setIsDragging(false); isResizingRef.current = false; };
+  
+  // TOUCH HANDLERS FOR MOBILE
+  const handleTouchStart = (e) => {
+      setIsDragging(true);
+      hasDraggedRef.current = false;
+      const touch = e.touches[0];
+      dragStartRef.current = { x: touch.clientX - pan.x, y: touch.clientY - pan.y };
+  };
+  
+  const handleTouchMove = (e) => {
+      if (!isDragging) return;
+      // Prevent default to stop scrolling
+      // e.preventDefault(); // removed to allow some default behaviors if needed, rely on touch-action
+      const touch = e.touches[0];
+      const newX = touch.clientX - dragStartRef.current.x;
+      const newY = touch.clientY - dragStartRef.current.y;
+      const delta = Math.sqrt(Math.pow(newX - pan.x, 2) + Math.pow(newY - pan.y, 2));
+      if (delta > 2) hasDraggedRef.current = true;
+      setPan({ x: newX, y: newY });
+  };
+
+  const handleTouchEnd = () => {
+      setIsDragging(false);
+  };
+
   const handleResizeStart = (e) => { e.stopPropagation(); isResizingRef.current = true; };
   const handleWheel = (e) => {
       const scaleAmount = -e.deltaY * 0.001;
@@ -586,9 +831,12 @@ const App = () => {
   const toggleCategoryFocus = (category, e) => { e.stopPropagation(); setFocusedCategory(prev => prev === category ? null : category); };
   const handleOpenLegal = (type) => { setLegalModalType(type); };
 
-  // --- RENDER ---
+  // --- RENDER MAIN APP ---
   return (
-    <div className="fixed inset-0 w-full h-full bg-[#050505] text-gray-300 font-sans overflow-hidden selection:bg-white/20 selection:text-white overscroll-none touch-none" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+    <div className="fixed inset-0 w-full h-full bg-[#050505] text-gray-300 font-sans overflow-hidden selection:bg-white/20 selection:text-white overscroll-none touch-none" 
+         onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+         onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
+         >
       <AmbientBackground mode={settings.ambience} pan={pan} zoom={zoom} />
       
       {/* MODALS */}
@@ -609,182 +857,205 @@ const App = () => {
         type={legalModalType} 
       />
 
-      {/* HUD & GRAPH */}
-      <div className="absolute top-0 bottom-0 left-0 transition-all duration-75 ease-out z-10" style={{ width: activeNoteId ? `${100 - editorWidth}%` : '100%' }}>
-        <div className="absolute top-6 left-6 z-30 flex flex-col items-start gap-4 pointer-events-none">
-          <div>
-            <h1 className="text-base tracking-[0.2em] font-bold text-gray-500 uppercase flex items-center gap-3">Echo Archive</h1>
-            {focusedCategory && <div className="mt-2 text-xs font-mono text-cyan-400 flex items-center gap-2 animate-pulse"><Eye size={12} /> FOCUS: {focusedCategory.toUpperCase()}</div>}
-            <div className="flex items-center gap-4 mt-2 pointer-events-auto">{(pan.x !== 0 || pan.y !== 0 || zoom !== 1) && <button onClick={resetView} className="text-xs font-mono text-gray-500 hover:text-white flex items-center gap-2 transition-colors"><Move size={12} /> RESET ({Math.round(zoom * 100)}%)</button>}</div>
-          </div>
-          <div className="pointer-events-auto flex flex-col gap-3 mt-3 w-80">
-             <div className="relative group w-full backdrop-blur-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-white transition-colors" />
-                <input type="text" placeholder="Search universe..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black/20 border border-white/5 rounded-lg py-2.5 pl-10 pr-4 text-sm text-gray-300 focus:outline-none focus:border-white/20 focus:bg-white/5 transition-all placeholder:text-gray-700" />
-             </div>
-             <div className="flex gap-2">
-                <button onClick={() => setShowStarLog(!showStarLog)} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg backdrop-blur-md border transition-all duration-300 group ${showStarLog ? 'bg-white/10 border-white/20 text-white' : 'bg-black/20 border-white/5 text-gray-500 hover:text-gray-300'}`}><List size={16} /> <span className="text-xs font-medium tracking-wide">LOG</span></button>
-                <button onClick={handleCreateRootNote} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg backdrop-blur-md border border-white/5 bg-black/20 text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-300"><Plus size={16} /> <span className="text-xs font-medium tracking-wide">NEW</span></button>
-                <button onClick={() => setShowSettings(true)} className="flex items-center justify-center px-4 py-2.5 rounded-lg backdrop-blur-md border border-white/5 bg-black/20 text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-300" title="Settings"><Settings size={16} /></button>
-             </div>
-          </div>
-        </div>
-        <div className={`absolute top-56 left-6 bottom-6 w-80 z-30 pointer-events-auto transition-all duration-500 origin-left ${showStarLog ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
-            <div className="h-full overflow-y-auto pr-2 custom-scrollbar space-y-5 pb-20">
-                {Object.entries(groupedNotes).map(([rootTag, groupNotes]) => {
-                    const isCollapsed = collapsedGroups[rootTag]; const isFocused = focusedCategory === rootTag; const groupColor = tagColors[rootTag] || tagColors.default;
-                    const subGroups = groupNotes.reduce((acc, note) => { const matchingTag = note.tags.find(t => t.startsWith(rootTag)); let subCategory = '__general__'; if (matchingTag) { const parts = matchingTag.split('/'); if (parts.length > 1) subCategory = parts[1]; } if (!acc[subCategory]) acc[subCategory] = []; acc[subCategory].push(note); return acc; }, {});
-                    const sortedSubKeys = Object.keys(subGroups).sort((a, b) => { if (a === '__general__') return -1; if (b === '__general__') return 1; return a.localeCompare(b); });
-                    return (
-                        <div key={rootTag} className="animate-in fade-in slide-in-from-left-4 duration-500">
-                            <div onClick={() => toggleGroupCollapse(rootTag)} className={`flex items-center justify-between p-2.5 rounded-md cursor-pointer border transition-all duration-300 group ${isFocused ? 'bg-white/10 border-white/20' : 'hover:bg-white/5 border-transparent hover:border-white/5'}`}>
-                                <div className="flex items-center gap-3"><ChevronDown size={14} className={`text-gray-500 transition-transform duration-300 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`} /><h3 className="text-xs uppercase tracking-widest font-bold flex items-center gap-2" style={{color: groupColor}}>{rootTag} <span className="text-gray-600 text-[10px] font-normal">({groupNotes.length})</span></h3></div>
-                                <div className="flex items-center gap-1"><button onClick={(e) => toggleCategoryFocus(rootTag, e)} className={`p-1.5 rounded-full transition-all ${isFocused ? 'bg-white/20 text-white' : 'text-gray-600 hover:text-white hover:bg-white/10'}`}>{isFocused ? <Eye size={12} /> : <EyeOff size={12} />}</button><button onClick={(e) => handleDeleteCategory(rootTag, e)} className="p-1.5 rounded-full text-gray-600 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Delete Constellation"><Trash2 size={12} /></button></div>
-                            </div>
-                            <div className={`ml-1 pl-3 overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[800px] opacity-100 mt-2'}`}><div className="border-l border-white/10 pl-2 space-y-3">{sortedSubKeys.map(subKey => (<div key={subKey}>{subKey !== '__general__' && (<div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono uppercase mb-1 mt-2"><CornerDownRight size={12} className="opacity-50" /> {subKey}</div>)}<div className={subKey !== '__general__' ? "pl-3 border-l border-white/5 ml-1" : ""}>{subGroups[subKey].map(note => (<button key={note.id} onClick={() => setActiveNoteId(note.id)} className="group/item w-full text-left py-1.5 block"><div className={`text-sm truncate transition-colors ${activeNoteId === note.id ? 'text-white font-medium' : 'text-gray-500 group-hover/item:text-gray-300'}`}>{note.title || 'Untitled'}</div></button>))}</div></div>))}</div></div>
-                        </div>
-                    );
-                })}
+      {/* Main App Content - Rendered if transitioning or entered */}
+      {(isExitingLanding || hasEntered) && (
+        <>
+          {/* HUD & GRAPH */}
+          {/* Mobile optimization: HUD takes 100% width unless a note is open */}
+          <div className="absolute top-0 bottom-0 left-0 transition-all duration-75 ease-out z-10" style={{ width: activeNoteId ? (isMobile ? '0%' : `${100 - editorWidth}%`) : '100%' }}>
+            
+            {/* Top HUD Area */}
+            <div className={`absolute top-6 left-6 z-30 flex flex-col items-start gap-4 pointer-events-none transition-opacity duration-300 ${activeNoteId && isMobile ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <div>
+                <button onClick={handleReturnToLanding} className="text-base tracking-[0.2em] font-bold text-gray-500 uppercase flex items-center gap-3 hover:text-white transition-colors pointer-events-auto">Echo Archive</button>
+                {focusedCategory && <div className="mt-2 text-xs font-mono text-cyan-400 flex items-center gap-2 animate-pulse"><Eye size={12} /> FOCUS: {focusedCategory.toUpperCase()}</div>}
+                <div className="flex items-center gap-4 mt-2 pointer-events-auto">{(pan.x !== 0 || pan.y !== 0 || zoom !== 1) && <button onClick={resetView} className="text-xs font-mono text-gray-500 hover:text-white flex items-center gap-2 transition-colors"><Move size={12} /> RESET ({Math.round(zoom * 100)}%)</button>}</div>
+              </div>
+              <div className="pointer-events-auto flex flex-col gap-3 mt-3 w-72 md:w-80">
+                 <div className="relative group w-full backdrop-blur-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4 group-focus-within:text-white transition-colors" />
+                    <input type="text" placeholder="Search universe..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-black/20 border border-white/5 rounded-lg py-2.5 pl-10 pr-4 text-sm text-gray-300 focus:outline-none focus:border-white/20 focus:bg-white/5 transition-all placeholder:text-gray-700" />
+                 </div>
+                 <div className="flex gap-2">
+                    <button onClick={() => setShowStarLog(!showStarLog)} className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg backdrop-blur-md border transition-all duration-300 group ${showStarLog ? 'bg-white/10 border-white/20 text-white' : 'bg-black/20 border-white/5 text-gray-500 hover:text-gray-300'}`}><List size={16} /> <span className="text-xs font-medium tracking-wide">LOG</span></button>
+                    <button onClick={handleCreateRootNote} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg backdrop-blur-md border border-white/5 bg-black/20 text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-300"><Plus size={16} /> <span className="text-xs font-medium tracking-wide">NEW</span></button>
+                    <button onClick={() => setShowSettings(true)} className="flex items-center justify-center px-4 py-2.5 rounded-lg backdrop-blur-md border border-white/5 bg-black/20 text-gray-500 hover:text-white hover:bg-white/10 transition-all duration-300" title="Settings"><Settings size={16} /></button>
+                 </div>
+              </div>
             </div>
-        </div>
-        <div ref={containerRef} onMouseDown={handleMouseDown} onWheel={handleWheel} onClick={handleBackgroundClick} className={`w-full h-full relative overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}>
-           <GraphView notes={visibleNotes} connections={visibleConnections} activeId={activeNoteId} onSelect={setActiveNoteId} pan={pan} zoom={zoom} isDragging={isDragging} tagColors={tagColors} connectedNodeIds={connectedNodeIds} settings={settings} />
-           {!activeNoteId && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-sm font-mono animate-pulse pointer-events-none select-none text-center">{isDragging ? 'SCANNING...' : 'SCROLL TO ZOOM • DRAG TO MOVE'}</div>}
-        </div>
-      </div>
 
-      {/* EDITOR PANEL */}
-      <div className={`absolute top-0 right-0 h-full bg-[#050505] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out z-40`} style={{ width: `${editorWidth}%`, transform: activeNoteId ? 'translateX(0)' : 'translateX(100%)' }}>
-        <div className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-cyan-500/20 z-50 group flex items-center justify-center -translate-x-1/2" onMouseDown={handleResizeStart}><div className="h-8 w-1 rounded-full bg-white/20 group-hover:bg-cyan-500/50 transition-colors" /></div>
-        {activeNote && (
-            <div className="flex flex-col h-full relative">
-                <button onClick={() => setActiveNoteId(null)} className="absolute top-1/2 -left-3 -translate-y-1/2 bg-[#050505] border border-white/10 rounded-full p-1.5 text-gray-500 hover:text-white hover:border-white/30 transition-all z-50"><Maximize2 size={14} /></button>
-                <div className="h-20 flex items-center justify-between px-8 border-b border-white/5 bg-[#050505]/50 backdrop-blur-xl z-10 relative">
-                    <div className="flex items-center gap-3 text-xs text-gray-500 font-mono relative">
-                        <div className="relative">
-                            <button onClick={() => setColorPickerOpen(!colorPickerOpen)} className="w-4 h-4 rounded-full hover:scale-125 transition-transform duration-200" style={{ backgroundColor: getCategoryColor(activeNote.tags, tagColors) }} title="Change Category Color" />
-                            {colorPickerOpen && (
-                                <div className="absolute top-6 left-0 w-48 bg-[#0A0A0A] border border-white/10 rounded-xl p-3 shadow-2xl z-50 grid grid-cols-5 gap-2 animate-in fade-in zoom-in duration-200">
-                                    {NEON_PALETTE.map(color => (
-                                        <button key={color} onClick={() => handleColorChange(activeRootCategory, color)} className="w-6 h-6 rounded-full border border-white/5 hover:scale-110 transition-transform flex items-center justify-center" style={{ backgroundColor: color }}>
-                                            {tagColors[activeRootCategory] === color && <Check size={12} className="text-black/50 stroke-[3]" />}
-                                        </button>
-                                    ))}
+            {/* Note List / Star Log */}
+            <div className={`absolute top-56 left-6 bottom-6 w-80 z-30 pointer-events-auto transition-all duration-500 origin-left ${showStarLog && (!activeNoteId || !isMobile) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
+                <div className="h-full overflow-y-auto pr-2 custom-scrollbar space-y-5 pb-20">
+                    {Object.entries(groupedNotes).map(([rootTag, groupNotes]) => {
+                        const isCollapsed = collapsedGroups[rootTag]; const isFocused = focusedCategory === rootTag; const groupColor = tagColors[rootTag] || tagColors.default;
+                        const subGroups = groupNotes.reduce((acc, note) => { const matchingTag = note.tags.find(t => t.startsWith(rootTag)); let subCategory = '__general__'; if (matchingTag) { const parts = matchingTag.split('/'); if (parts.length > 1) subCategory = parts[1]; } if (!acc[subCategory]) acc[subCategory] = []; acc[subCategory].push(note); return acc; }, {});
+                        const sortedSubKeys = Object.keys(subGroups).sort((a, b) => { if (a === '__general__') return -1; if (b === '__general__') return 1; return a.localeCompare(b); });
+                        return (
+                            <div key={rootTag} className="animate-in fade-in slide-in-from-left-4 duration-500">
+                                <div onClick={() => toggleGroupCollapse(rootTag)} className={`flex items-center justify-between p-2.5 rounded-md cursor-pointer border transition-all duration-300 group ${isFocused ? 'bg-white/10 border-white/20' : 'hover:bg-white/5 border-transparent hover:border-white/5'}`}>
+                                    <div className="flex items-center gap-3"><ChevronDown size={14} className={`text-gray-500 transition-transform duration-300 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`} /><h3 className="text-xs uppercase tracking-widest font-bold flex items-center gap-2" style={{color: groupColor}}>{rootTag} <span className="text-gray-600 text-[10px] font-normal">({groupNotes.length})</span></h3></div>
+                                    <div className="flex items-center gap-1"><button onClick={(e) => toggleCategoryFocus(rootTag, e)} className={`p-1.5 rounded-full transition-all ${isFocused ? 'bg-white/20 text-white' : 'text-gray-600 hover:text-white hover:bg-white/10'}`}>{isFocused ? <Eye size={12} /> : <EyeOff size={12} />}</button><button onClick={(e) => handleDeleteCategory(rootTag, e)} className="p-1.5 rounded-full text-gray-600 hover:text-red-500 hover:bg-red-500/10 transition-all" title="Delete Constellation"><Trash2 size={12} /></button></div>
+                                </div>
+                                <div className={`ml-1 pl-3 overflow-hidden transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 opacity-0 mt-0' : 'max-h-[800px] opacity-100 mt-2'}`}><div className="border-l border-white/10 pl-2 space-y-3">{sortedSubKeys.map(subKey => (<div key={subKey}>{subKey !== '__general__' && (<div className="flex items-center gap-2 text-[10px] text-gray-500 font-mono uppercase mb-1 mt-2"><CornerDownRight size={12} className="opacity-50" /> {subKey}</div>)}<div className={subKey !== '__general__' ? "pl-3 border-l border-white/5 ml-1" : ""}>{subGroups[subKey].map(note => (<button key={note.id} onClick={() => setActiveNoteId(note.id)} className="group/item w-full text-left py-1.5 block"><div className={`text-sm truncate transition-colors ${activeNoteId === note.id ? 'text-white font-medium' : 'text-gray-500 group-hover/item:text-gray-300'}`}>{note.title || 'Untitled'}</div></button>))}</div></div>))}</div></div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+            
+            {/* GRAPH VIEW Container with Mouse AND Touch Handlers */}
+            <div ref={containerRef} 
+                 onMouseDown={handleMouseDown} onWheel={handleWheel} onClick={handleBackgroundClick} 
+                 onTouchStart={handleTouchStart}
+                 className={`w-full h-full relative overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                 style={{ touchAction: 'none' }}> {/* Prevents scroll on mobile when dragging map */}
+               <GraphView notes={visibleNotes} connections={visibleConnections} activeId={activeNoteId} onSelect={setActiveNoteId} pan={pan} zoom={zoom} isDragging={isDragging} tagColors={tagColors} connectedNodeIds={connectedNodeIds} settings={settings} />
+               {!activeNoteId && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-sm font-mono animate-pulse pointer-events-none select-none text-center whitespace-nowrap">{isDragging ? 'SCANNING...' : (isMobile ? 'SWIPE TO MOVE' : 'SCROLL TO ZOOM • DRAG TO MOVE')}</div>}
+            </div>
+          </div>
+
+          {/* EDITOR PANEL - Responsive Width */}
+          <div className={`absolute top-0 right-0 h-full bg-[#050505] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out z-40`} 
+               style={{ 
+                   width: isMobile ? '100%' : `${editorWidth}%`, 
+                   transform: activeNoteId ? 'translateX(0)' : 'translateX(100%)' 
+               }}>
+            <div className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-cyan-500/20 z-50 group flex items-center justify-center -translate-x-1/2 hidden md:flex" onMouseDown={handleResizeStart}><div className="h-8 w-1 rounded-full bg-white/20 group-hover:bg-cyan-500/50 transition-colors" /></div>
+            {activeNote && (
+                <div className="flex flex-col h-full relative">
+                    <button onClick={() => setActiveNoteId(null)} className="absolute top-1/2 -left-3 -translate-y-1/2 bg-[#050505] border border-white/10 rounded-full p-1.5 text-gray-500 hover:text-white hover:border-white/30 transition-all z-50"><Maximize2 size={14} /></button>
+                    <div className="h-20 flex items-center justify-between px-4 md:px-8 border-b border-white/5 bg-[#050505]/50 backdrop-blur-xl z-10 relative">
+                        <div className="flex items-center gap-3 text-xs text-gray-500 font-mono relative">
+                            <div className="relative">
+                                <button onClick={() => setColorPickerOpen(!colorPickerOpen)} className="w-4 h-4 rounded-full hover:scale-125 transition-transform duration-200" style={{ backgroundColor: getCategoryColor(activeNote.tags, tagColors) }} title="Change Category Color" />
+                                {colorPickerOpen && (
+                                    <div className="absolute top-6 left-0 w-48 bg-[#0A0A0A] border border-white/10 rounded-xl p-3 shadow-2xl z-50 grid grid-cols-5 gap-2 animate-in fade-in zoom-in duration-200">
+                                        {NEON_PALETTE.map(color => (
+                                            <button key={color} onClick={() => handleColorChange(activeRootCategory, color)} className="w-6 h-6 rounded-full border border-white/5 hover:scale-110 transition-transform flex items-center justify-center" style={{ backgroundColor: color }}>
+                                                {tagColors[activeRootCategory] === color && <Check size={12} className="text-black/50 stroke-[3]" />}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <span className="uppercase tracking-wider text-sm hidden md:inline">{activeRootCategory}</span>
+                        </div>
+                        <div className="flex items-center gap-2 md:gap-3">
+                             {/* GEMINI SUMMARIZE BUTTON */}
+                            <button 
+                                onClick={handleAiSummarize} 
+                                disabled={isAiLoading}
+                                className={`p-2 rounded-md transition-all flex items-center gap-2 border ${isAiLoading && aiStatus === 'summarizing' ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 animate-pulse' : 'bg-transparent border-transparent text-gray-500 hover:text-cyan-400 hover:bg-cyan-900/10'}`} 
+                                title="AI Summarize Note"
+                            >
+                                {isAiLoading && aiStatus === 'summarizing' ? <Bot size={16} className="animate-spin" /> : <Bot size={16} />}
+                                <span className="text-xs font-medium hidden md:inline">ABSTRACT</span>
+                            </button>
+                            
+                            <div className="h-4 w-px bg-white/10 mx-1 hidden md:block" />
+
+                            <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`p-2 rounded-md transition-colors flex items-center gap-2 ${isPreviewMode ? 'bg-cyan-900/30 text-cyan-400' : 'text-gray-500 hover:text-white'}`} title={isPreviewMode ? "Switch to Edit" : "Switch to Preview"}>{isPreviewMode ? <Eye size={16} /> : <Pencil size={16} />}<span className="text-xs font-medium hidden md:inline">{isPreviewMode ? 'PREVIEW' : 'EDIT'}</span></button>
+                            <div className="h-4 w-px bg-white/10 mx-1 hidden md:block" />
+                            <button onClick={() => handleDeleteNote(activeNote.id)} className="p-2 md:p-2.5 hover:bg-red-500/10 rounded-md text-gray-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                            <button onClick={() => handleCreateLinkedNote(activeNote)} className="bg-cyan-900/20 hover:bg-cyan-900/40 border border-cyan-900/30 px-3 py-2 rounded text-xs font-medium text-cyan-400 hover:text-cyan-200 transition-all flex items-center gap-2 hidden md:flex"><GitBranch size={14} /> LINK NEW</button>
+                            <button onClick={handleCreateRootNote} className="bg-white/5 hover:bg-white/10 border border-white/5 px-3 py-2 rounded text-xs font-medium text-gray-400 hover:text-white transition-all flex items-center gap-2 hidden md:flex"><Plus size={14} /> NEW ROOT</button>
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-6 md:px-12 py-8 md:py-12 custom-scrollbar">
+                        <div className="max-w-xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-20 md:pb-0">
+                            <input value={activeNote.title} onChange={(e) => handleUpdateNote(activeNote.id, 'title', e.target.value)} className="w-full bg-transparent text-3xl md:text-4xl font-light text-white placeholder:text-gray-800 focus:outline-none" placeholder="Untitled Note" />
+                            
+                            {/* TAG INPUT AREA */}
+                            <div className="flex flex-wrap gap-2 items-center">
+                                {activeNote.tags.map(tag => {
+                                    const parts = tag.split('/');
+                                    const root = parts[0];
+                                    const color = tagColors[root] || tagColors.default;
+                                    return (
+                                        <span key={tag} style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider group cursor-default">
+                                            <Hash size={10} className="opacity-50" />
+                                            {parts.map((part, index) => (
+                                                <React.Fragment key={index}>
+                                                    {index > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}
+                                                    <span className={index === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span>
+                                                </React.Fragment>
+                                            ))}
+                                            <button onClick={(e) => { e.stopPropagation(); handleRemoveTag(tag); }} className="ml-1 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"><X size={10} /></button>
+                                        </span>
+                                    )
+                                })}
+                                
+                                <div className="relative flex items-center group">
+                                    <Tag size={12} className="absolute left-2 text-gray-600 group-focus-within:text-cyan-500 transition-colors" />
+                                    <input 
+                                        value={tagInput}
+                                        onChange={(e) => setTagInput(e.target.value)}
+                                        onKeyDown={handleAddTag}
+                                        placeholder="Add tag" 
+                                        className="bg-white/5 hover:bg-white/10 focus:bg-black border border-transparent focus:border-cyan-900/50 rounded-full py-1 pl-7 pr-3 text-xs text-gray-300 placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all w-32 md:w-48"
+                                    />
+                                </div>
+
+                                {/* GEMINI AUTO TAG BUTTON */}
+                                <button 
+                                    onClick={handleAiAutoTag}
+                                    disabled={isAiLoading}
+                                    className={`ml-1 p-1.5 rounded-full transition-all border ${isAiLoading && aiStatus === 'tagging' ? 'border-purple-500 bg-purple-500/20 text-purple-300 animate-pulse' : 'border-white/5 bg-white/5 text-gray-500 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10'}`}
+                                    title="AI Auto-Tagging"
+                                >
+                                    <Sparkles size={12} />
+                                </button>
+                            </div>
+                            
+                            <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-6" />
+                            
+                            {/* MARKDOWN TOOLBAR & HELP */}
+                            {!isPreviewMode && (
+                                <div className="flex items-center gap-1 md:gap-2 mb-4 bg-white/5 p-2 rounded-lg w-fit border border-white/5 relative overflow-x-auto max-w-full">
+                                    <button onClick={() => handleInsertMarkdown('**', '**')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Bold"><Bold size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('*', '*')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Italic"><Italic size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('# ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Heading"><Heading1 size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('- ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="List"><ListOrdered size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('> ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Quote"><QuoteIcon size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('`', '`')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Code"><CodeIcon size={16}/></button>
+                                    
+                                    <div className="h-4 w-px bg-white/10 mx-1" />
+                                    
+                                    {/* GEMINI SMART CONTINUE BUTTON */}
+                                    <button 
+                                        onClick={handleAiContinue} 
+                                        disabled={isAiLoading}
+                                        className={`p-1.5 rounded transition-all flex items-center gap-1 ${isAiLoading && aiStatus === 'writing' ? 'text-green-400 bg-green-900/20 animate-pulse' : 'text-gray-400 hover:text-green-400 hover:bg-green-900/10'}`} 
+                                        title="AI Smart Continue"
+                                    >
+                                        <Wand2 size={16} />
+                                    </button>
+
+                                    <div className="h-4 w-px bg-white/10 mx-1" />
+                                    
+                                    <button onClick={() => setShowMarkdownHelp(!showMarkdownHelp)} className="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/20 rounded transition-colors" title="Markdown Help"><HelpCircle size={16}/></button>
+                                    <MarkdownHelp isOpen={showMarkdownHelp} onClose={() => setShowMarkdownHelp(false)} />
                                 </div>
                             )}
-                        </div>
-                        <span className="uppercase tracking-wider text-sm">{activeRootCategory}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                         {/* GEMINI SUMMARIZE BUTTON */}
-                        <button 
-                            onClick={handleAiSummarize} 
-                            disabled={isAiLoading}
-                            className={`p-2 rounded-md transition-all mr-2 flex items-center gap-2 border ${isAiLoading && aiStatus === 'summarizing' ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 animate-pulse' : 'bg-transparent border-transparent text-gray-500 hover:text-cyan-400 hover:bg-cyan-900/10'}`} 
-                            title="AI Summarize Note"
-                        >
-                            {isAiLoading && aiStatus === 'summarizing' ? <Bot size={16} className="animate-spin" /> : <Bot size={16} />}
-                            <span className="text-xs font-medium">ABSTRACT</span>
-                        </button>
-                        
-                        <div className="h-4 w-px bg-white/10 mx-1" />
 
-                        <button onClick={() => setIsPreviewMode(!isPreviewMode)} className={`p-2 rounded-md transition-colors mr-2 flex items-center gap-2 ${isPreviewMode ? 'bg-cyan-900/30 text-cyan-400' : 'text-gray-500 hover:text-white'}`} title={isPreviewMode ? "Switch to Edit" : "Switch to Preview"}>{isPreviewMode ? <Eye size={16} /> : <Pencil size={16} />}<span className="text-xs font-medium">{isPreviewMode ? 'PREVIEW' : 'EDIT'}</span></button>
-                        <div className="h-4 w-px bg-white/10 mx-1" />
-                        <button onClick={() => handleDeleteNote(activeNote.id)} className="p-2.5 hover:bg-red-500/10 rounded-md text-gray-600 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
-                        <button onClick={() => handleCreateLinkedNote(activeNote)} className="bg-cyan-900/20 hover:bg-cyan-900/40 border border-cyan-900/30 px-4 py-2 rounded text-xs font-medium text-cyan-400 hover:text-cyan-200 transition-all flex items-center gap-2"><GitBranch size={14} /> LINK NEW</button>
-                        <button onClick={handleCreateRootNote} className="bg-white/5 hover:bg-white/10 border border-white/5 px-4 py-2 rounded text-xs font-medium text-gray-400 hover:text-white transition-all flex items-center gap-2"><Plus size={14} /> NEW ROOT</button>
+                            {isPreviewMode ? (
+                                <div className="prose prose-invert prose-p:text-gray-300 max-w-none"><ReactMarkdown children={activeNote.content} components={MarkdownComponents} /></div>
+                            ) : (
+                                <textarea ref={textareaRef} value={activeNote.content} onChange={(e) => handleUpdateNote(activeNote.id, 'content', e.target.value)} className="w-full h-[50vh] md:h-[60vh] bg-transparent resize-none focus:outline-none text-sm leading-relaxed text-gray-300 font-mono" placeholder="Start writing..." />
+                            )}
+                        </div>
                     </div>
                 </div>
-                <div className="flex-1 overflow-y-auto px-12 py-12 custom-scrollbar">
-                    <div className="max-w-xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        <input value={activeNote.title} onChange={(e) => handleUpdateNote(activeNote.id, 'title', e.target.value)} className="w-full bg-transparent text-4xl font-light text-white placeholder:text-gray-800 focus:outline-none" placeholder="Untitled Note" />
-                        
-                        {/* TAG INPUT AREA */}
-                        <div className="flex flex-wrap gap-2 items-center">
-                            {activeNote.tags.map(tag => {
-                                const parts = tag.split('/');
-                                const root = parts[0];
-                                const color = tagColors[root] || tagColors.default;
-                                return (
-                                    <span key={tag} style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider group cursor-default">
-                                        <Hash size={10} className="opacity-50" />
-                                        {parts.map((part, index) => (
-                                            <React.Fragment key={index}>
-                                                {index > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}
-                                                <span className={index === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span>
-                                            </React.Fragment>
-                                        ))}
-                                        <button onClick={(e) => { e.stopPropagation(); handleRemoveTag(tag); }} className="ml-1 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"><X size={10} /></button>
-                                    </span>
-                                )
-                            })}
-                            
-                            <div className="relative flex items-center group">
-                                <Tag size={12} className="absolute left-2 text-gray-600 group-focus-within:text-cyan-500 transition-colors" />
-                                <input 
-                                    value={tagInput}
-                                    onChange={(e) => setTagInput(e.target.value)}
-                                    onKeyDown={handleAddTag}
-                                    placeholder="Add tag (e.g. school/math)" 
-                                    className="bg-white/5 hover:bg-white/10 focus:bg-black border border-transparent focus:border-cyan-900/50 rounded-full py-1 pl-7 pr-3 text-xs text-gray-300 placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-cyan-500/20 transition-all w-48"
-                                />
-                            </div>
+            )}
+          </div>
+        </>
+      )}
 
-                            {/* GEMINI AUTO TAG BUTTON */}
-                            <button 
-                                onClick={handleAiAutoTag}
-                                disabled={isAiLoading}
-                                className={`ml-1 p-1.5 rounded-full transition-all border ${isAiLoading && aiStatus === 'tagging' ? 'border-purple-500 bg-purple-500/20 text-purple-300 animate-pulse' : 'border-white/5 bg-white/5 text-gray-500 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10'}`}
-                                title="AI Auto-Tagging"
-                            >
-                                <Sparkles size={12} />
-                            </button>
-                        </div>
-                        
-                        <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent my-6" />
-                        
-                        {/* MARKDOWN TOOLBAR & HELP */}
-                        {!isPreviewMode && (
-                            <div className="flex items-center gap-2 mb-4 bg-white/5 p-2 rounded-lg w-fit border border-white/5 relative">
-                                <button onClick={() => handleInsertMarkdown('**', '**')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Bold"><Bold size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('*', '*')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Italic"><Italic size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('# ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Heading"><Heading1 size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('- ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="List"><ListOrdered size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('> ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Quote"><QuoteIcon size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('`', '`')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Code"><CodeIcon size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('[', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Link"><LinkIcon size={16}/></button>
-                                <button onClick={() => handleInsertMarkdown('![', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Image"><ImageIcon size={16}/></button>
-                                
-                                <div className="h-4 w-px bg-white/10 mx-1" />
-                                
-                                {/* GEMINI SMART CONTINUE BUTTON */}
-                                <button 
-                                    onClick={handleAiContinue} 
-                                    disabled={isAiLoading}
-                                    className={`p-1.5 rounded transition-all flex items-center gap-1 ${isAiLoading && aiStatus === 'writing' ? 'text-green-400 bg-green-900/20 animate-pulse' : 'text-gray-400 hover:text-green-400 hover:bg-green-900/10'}`} 
-                                    title="AI Smart Continue"
-                                >
-                                    <Wand2 size={16} />
-                                </button>
-
-                                <div className="h-4 w-px bg-white/10 mx-1" />
-                                
-                                <button onClick={() => setShowMarkdownHelp(!showMarkdownHelp)} className="p-1.5 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-900/20 rounded transition-colors" title="Markdown Help"><HelpCircle size={16}/></button>
-                                <MarkdownHelp isOpen={showMarkdownHelp} onClose={() => setShowMarkdownHelp(false)} />
-                            </div>
-                        )}
-
-                        {isPreviewMode ? (
-                            <div className="prose prose-invert prose-p:text-gray-300 max-w-none"><ReactMarkdown children={activeNote.content} components={MarkdownComponents} /></div>
-                        ) : (
-                            <textarea ref={textareaRef} value={activeNote.content} onChange={(e) => handleUpdateNote(activeNote.id, 'content', e.target.value)} className="w-full h-[60vh] bg-transparent resize-none focus:outline-none text-sm leading-relaxed text-gray-300 font-mono" placeholder="Start writing... (Try using the toolbar above)" />
-                        )}
-                    </div>
-                </div>
-            </div>
-        )}
-      </div>
+      {/* Landing Page Overlay */}
+      {!hasEntered && (
+          <LandingPage onEnter={handleEnterSystem} onInstall={handleInstallClick} installAvailable={!!installPrompt} isExiting={isExitingLanding} />
+      )}
     </div>
   );
 };
