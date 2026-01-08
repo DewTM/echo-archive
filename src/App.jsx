@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 
 /**
- * ECHO ARCHIVE v3.6 (Minimal Legal Implementation)
+ * ECHO ARCHIVE v3.7 (Preview Compatible & Minimal Legal)
  * Features:
  * - ⚖️ Legal: Minimal Impressum (Name/Email) + Privacy Policy
- * - 🌍 Deployment: configured for VITE_GEMINI_API_KEY
+ * - 🌍 Deployment Note: Uncomment 'import.meta.env' line for Netlify!
  * - ✨ AI: Auto-Tag, Smart Continue, Summarize
  */
 
@@ -39,11 +39,15 @@ const DEFAULT_SETTINGS = {
 
 // --- GEMINI API HELPER ---
 const callGeminiAPI = async (prompt) => {
-    // Lädt den API Key sicher aus den Netlify-Einstellungen
+    // ⚠️ WICHTIG FÜR DEPLOYMENT (NETLIFY/VERCEL):
+    // Entferne die zwei Schrägstriche (//) vor der nächsten Zeile, wenn du den Code in VS Code für Netlify nutzt:
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
+    
+    // Für die Vorschau HIER im Editor nutzen wir einen leeren String, um den Fehler zu vermeiden:
+    //const apiKey = ""; 
 
     if (!apiKey) {
-        console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY in your deployment settings.");
+        console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY in your deployment settings or uncomment the line in src/App.jsx.");
         return null;
     }
 
@@ -102,7 +106,7 @@ const getCategoryColor = (tags, colorMap) => {
 };
 
 const generateInitialNotes = () => [
-  { id: '1', title: 'Welcome to Echo', content: '# Echo Archive\n\nReady for Launch! 🚀\n\n## Next Steps\n1. Go to Settings (Gear Icon)\n2. Open "Impressum"\n3. Check if your Name/Email is correct.\n\nAI Features are active and connected to the cloud.', x: 50, y: 50, tags: ['idea', 'welcome'] }
+  { id: '1', title: 'Welcome to Echo', content: '# Echo Archive v3.7\n\nReady for Launch! 🚀\n\n## Next Steps\n1. Go to Settings (Gear Icon)\n2. Open "Impressum"\n3. Check if your Name/Email is correct.\n\nAI Features are configured via Netlify Environment Variables.', x: 50, y: 50, tags: ['idea', 'welcome'] }
 ];
 
 // --- LEGAL TEXTS CONSTANTS ---
@@ -783,6 +787,56 @@ const App = () => {
       </div>
     </div>
   );
+};
+
+const GraphView = ({ notes, connections, activeId, onSelect, pan, zoom, isDragging, tagColors, connectedNodeIds, settings }) => {
+    const anims = settings.animations;
+    return (
+        <svg className="w-full h-full pointer-events-none">
+            <defs>
+                <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+                <style>{`
+                    @keyframes flow-dashed { to { stroke-dashoffset: -8; } }
+                    @keyframes pulse-line { 0%, 100% { stroke-opacity: 0.6; stroke-width: 1.5px; } 50% { stroke-opacity: 1; stroke-width: 2.5px; } }
+                    @keyframes breathe-node { 0%, 100% { r: 5px; opacity: 0.8; } 50% { r: 6px; opacity: 1; } }
+                    .animate-flow { animation: flow-dashed 1s linear infinite; }
+                    .animate-pulse-line { animation: pulse-line 2.5s ease-in-out infinite; }
+                    .animate-breathe-node { animation: breathe-node 4s ease-in-out infinite; }
+                `}</style>
+            </defs>
+            <g transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}>
+                {connections.map((link, i) => {
+                    const isActive = link.source.id === activeId || link.target.id === activeId;
+                    const isDimmed = activeId && !isActive; 
+                    const sourceColor = getCategoryColor(link.source.tags, tagColors);
+                    const finalOpacity = isDragging && !isActive ? (isDragging ? 0.3 : 0.05) : (isActive ? 0.8 : (isDimmed ? 0.05 : 0.2));
+                    const isExactMatch = link.type === 'exact';
+                    return (
+                        <line key={i} x1={`${link.source.x}%`} y1={`${link.source.y}%`} x2={`${link.target.x}%`} y2={`${link.target.y}%`} stroke={isActive ? sourceColor : (isDragging ? "#666" : "#333")} strokeWidth={isActive ? (isExactMatch ? "2.5" : "1.5") : "0.5"} strokeOpacity={finalOpacity} strokeDasharray={isExactMatch ? "0" : "4 4"} className={`transition-all duration-300 ease-out ${anims && !isExactMatch ? 'animate-flow' : ''} ${anims && isExactMatch && isActive ? 'animate-pulse-line' : ''}`} />
+                    );
+                })}
+                {notes.map((note) => {
+                    const isActive = note.id === activeId;
+                    const isConnected = connectedNodeIds?.has(note.id);
+                    const isDimmed = activeId && !isActive && !isConnected; 
+                    const color = getCategoryColor(note.tags, tagColors);
+                    const hasSubCategory = note.tags.some(t => t.includes('/'));
+                    return (
+                        <g key={note.id} onClick={(e) => { e.stopPropagation(); onSelect(note.id); }} className={`cursor-pointer group pointer-events-auto transition-opacity duration-300 ${isDimmed && !isDragging ? 'opacity-30' : 'opacity-100'}`}>
+                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r="20" fill="transparent" />
+                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r={isActive ? "12" : (isDragging ? "6" : "0")} fill="none" stroke={color} strokeOpacity={isDragging ? 0.5 : 0.2} strokeWidth="1" className="transition-all duration-500 ease-out" />
+                            <circle cx={`${note.x}%`} cy={`${note.y}%`} r={isActive ? "5" : "3"} fill={isActive || isDragging || isConnected ? color : "#262626"} stroke={isActive ? "white" : "transparent"} strokeWidth="1" className={`transition-all duration-300 group-hover:fill-gray-200 ${anims ? 'animate-breathe-node' : ''}`} style={{ filter: isActive || isConnected ? "url(#glow-strong)" : "none" }} />
+                            {hasSubCategory && <circle cx={`${note.x}%`} cy={`${note.y}%`} r="1" fill="white" className="pointer-events-none" />}
+                            <text x={`${note.x}%`} y={`${note.y + 6}%`} textAnchor="middle" className={`text-xs fill-gray-400 font-mono font-medium pointer-events-none transition-all duration-300 ${isDragging || isActive ? 'opacity-100 translate-y-0 fill-white' : 'opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'}`}>{note.title}</text>
+                        </g>
+                    );
+                })}
+            </g>
+        </svg>
+    );
 };
 
 export default App;
