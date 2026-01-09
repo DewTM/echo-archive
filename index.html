@@ -1,13 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>echo-archive</title>
+    
+    <!-- 1. DER TITEL IM BROWSER TAB -->
+    <title>Echo Archive | Visual Notes</title>
+
+    <!-- 2. DAS TAB-ICON (FAVICON) -->
+    <!-- Ich habe hier ein SVG direkt eingebettet (Ein Cyan-Kreis mit schwarzem Kern) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2306b6d4'/%3E%3Ccircle cx='50' cy='50' r='35' fill='%23000'/%3E%3C/svg%3E" />
+
+    <!-- 3. SOCIAL MEDIA VORSCHAU (WhatsApp, Discord, iMessage) -->
+    <!-- Titel der Karte -->
+    <meta property="og:title" content="Echo Archive v1.0" />
+    
+    <!-- Kurze Beschreibung -->
+    <meta property="og:description" content="Organize your thoughts in a 3D spatial constellation. Intelligent Knowledge Space powered by Gemini AI. No Cloud Storage." />
+    
+    <!-- Das Bild (Muss im 'public' Ordner liegen und 'preview.png' heissen) -->
+    <!-- WICHTIG: Ersetze 'echoarchive.tech' durch deine exakte Domain, falls anders -->
+    <meta property="og:image" content="https://echoarchive.tech/preview.png" />
+    
+    <!-- Art der Webseite -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://echoarchive.tech" />
+
+    <!-- Twitter/X Spezial-Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Echo Archive | Neural Interface" />
+    <meta name="twitter:description" content="Spatial Knowledge Management System powered by AI." />
+    <meta name="twitter:image" content="https://echoarchive.tech/preview.png" />
+
   </head>
   <body>
     <div id="root"></div>
+    <!-- Der Link zu deiner App (lass das so wie es bei dir im Original war, meistens so:) -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

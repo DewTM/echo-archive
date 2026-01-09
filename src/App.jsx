@@ -4,17 +4,16 @@ import {
     Plus, X, Hash, Search, Maximize2, Minimize2, Share2, MoreHorizontal, LayoutGrid, List, Disc, Trash2, 
     ChevronRight, ChevronDown, GitBranch, Sparkles, Eye, EyeOff, CornerDownRight, Move, Palette, Check, 
     ZoomIn, ZoomOut, RotateCcw, GripVertical, FileText, Pencil, Settings, Download, Upload, Monitor, Activity, Moon,
-    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid, Tag, Wand2, Bot, Shield, FileText as FileTextIcon, Terminal, Smartphone, Globe, Cpu, Zap, Layout, ChevronRight as ChevronRightIcon, Layers, Lock, Menu
+    Bold, Italic, ListOrdered, Image as ImageIcon, Link as LinkIcon, Code as CodeIcon, Quote as QuoteIcon, Heading1, HelpCircle, Grid, Tag, Wand2, Bot, Shield, FileText as FileTextIcon, Terminal, Smartphone, Globe, Cpu, Zap, Layout, ChevronRight as ChevronRightIcon, Layers, Lock, Menu, BookOpen
 } from 'lucide-react';
 
 /**
- * ECHO ARCHIVE v1.0 (Official Release)
+ * ECHO ARCHIVE v1.0 (Feature Complete)
  * Features:
- * - 📚 Tutorial Node: First note is now a comprehensive guide
- * - 🏠 Navigation: Click "Echo Archive" to return to Landing Page
- * - 📱 Touch Support: Added onTouch handlers for map navigation on mobile
- * - 📐 Responsive Editor: Takes 100% width on mobile screens
- * - ✨ AI: Gemini Integration
+ * - 📚 Content: Enhanced Manual with Image & Tag Guide
+ * - ⚙️ Settings: Animation Toggle restored, Tutorial Popup added
+ * - 🛠️ Toolbar: Link & Image buttons added
+ * - 📱 Core: Mobile Touch & Responsive Layout preserved
  */
 
 // --- Config: Palettes ---
@@ -30,9 +29,9 @@ const INITIAL_TAG_COLORS = {
   'school': '#10b981',
   'tech': '#06b6d4',
   'idea': '#f43f5e',
-  'guide': '#eab308',     // Neon Yellow
-  'tutorial': '#a855f7',  // Neon Purple
-  'welcome': '#06b6d4',   // Neon Cyan
+  'guide': '#eab308',
+  'tutorial': '#a855f7',
+  'welcome': '#06b6d4',
   'default': '#737373'
 };
 
@@ -46,7 +45,7 @@ const DEFAULT_SETTINGS = {
 const callGeminiAPI = async (prompt) => {
     // ⚠️ IMPORTANT FOR DEPLOYMENT (NETLIFY/VERCEL):
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY || ""; 
-    //const apiKey = ""; 
+    // const apiKey = ""; 
 
     if (!apiKey) {
         console.warn("⚠️ API Key missing. Please configure VITE_GEMINI_API_KEY.");
@@ -111,29 +110,30 @@ const generateInitialNotes = () => [
       title: 'Echo Manual v1.0', 
       content: `# Welcome to Echo Archive v1.0 🌌
 
-This is your new spatial knowledge base. Here is a quick guide on how to navigate and use the system.
+This is your new spatial knowledge base. Instead of folders, you create a constellation of thoughts.
+
+![Echo Space](https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80)
+
+## 🏷️ How Tags Work (Constellations)
+Tags are the gravity of this system. Notes with the same tag will group together and share the same color.
+
+- **Basic Tag:** \`#idea\` (Creates a red node)
+- **Sub-Tag:** \`#work/project-a\` (Groups under 'work')
+
+Try adding \`#welcome\` to a new note to connect it here!
 
 ## 📝 Writing with Markdown
-Echo supports standard Markdown for rich text formatting. Try using the toolbar above or type directly:
-
+Use the toolbar above or type directly:
 - **Bold** text: \`**text**\`
 - *Italic* text: \`*text*\`
 - [Links](https://echoarchive.tech): \`[Link](url)\`
 - \`Code snippets\`
-- > Blockquotes for citations
+- > Blockquotes
 
-## ✨ AI Capabilities (Gemini Powered)
-Look for the special icons in the editor toolbar to use AI assistance:
-
-1.  **Sparkles (✨) - Auto-Tagging:** Analyzes your text and automatically suggests relevant categories/tags.
-    
-2.  **Magic Wand (🪄) - Smart Continue:** Stuck? Click this to let the AI write the next paragraph for you based on context.
-
-3.  **Bot (🤖) - Abstract:** Generates a concise summary (Abstract) at the very top of your note.
-
-## 🗺️ Navigation
-- **PC:** Right-click & drag to move. Scroll to zoom. Click nodes to open.
-- **Mobile:** Swipe to pan. Pinch to zoom.
+## ✨ AI Capabilities
+1.  **Sparkles (✨) - Auto-Tagging:** Analyzes text & suggests tags.
+2.  **Magic Wand (🪄) - Smart Continue:** Writes the next paragraph.
+3.  **Bot (🤖) - Abstract:** Summarizes your note.
 
 *Start creating your constellation now! Click "New Root" to begin.*`, 
       x: 50, 
@@ -142,20 +142,20 @@ Look for the special icons in the editor toolbar to use AI assistance:
   }
 ];
 
-// --- LEGAL TEXTS CONSTANTS ---
+// --- INFO TEXTS CONSTANTS ---
 // ⬇️⬇️⬇️ ENTER YOUR DATA HERE ⬇️⬇️⬇️
-const LEGAL_TEXTS = {
+const INFO_TEXTS = {
     impressum: `
 # Imprint (Impressum)
 
 ## Operator
-[Your First Name] [Your Last Name]
+Calvin Lieberenz
 
 ## Contact
-E-Mail: [Your E-Mail Address]
+E-Mail: mail@clieberenz
 
 ## Editorial Responsibility
-[Your First Name] [Your Last Name]
+Calvin Lieberenz
 
 ## Note
 This is a private, non-commercial project for demonstration purposes.
@@ -174,6 +174,29 @@ The use of Netlify is based on Art. 6 para. 1 lit. f GDPR (DSGVO).
 ## 3. AI Functions (Google Gemini API)
 This application uses functions of the Google Gemini API for text generation.
 Text is only transmitted to Google upon your explicit request (button click). No personal data is stored permanently unless included in the text itself.
+    `,
+    tutorial: `
+# Quick Start Tutorial
+
+## 1. Create Notes
+Click the **+ NEW ROOT** button in the top left (or bottom menu on mobile) to spawn a new thought node.
+
+## 2. Connect Thoughts
+Use **Tags** (e.g., \`#project\`) to automatically link notes. Notes with the same tag share the same color and gravitate towards each other.
+You can also use **LINK NEW** inside a note to create a direct manual connection.
+
+## 3. Navigate 3D Space
+- **Desktop:**
+  - Right-Click + Drag to Move
+  - Scroll to Zoom
+  - Left-Click to Select
+- **Mobile:**
+  - One finger swipe to Move
+  - Pinch to Zoom
+  - Tap to Select
+
+## 4. Use AI
+Stuck? Use the **Magic Wand** 🪄 to let the AI continue your sentence, or the **Sparkles** ✨ to automatically find the right tags for your text.
     `
 };
 
@@ -204,152 +227,57 @@ const AmbientBackground = ({ mode, pan, zoom }) => {
     );
 };
 
-// --- NEW: MINIMAL LANDING PAGE WITH TRANSITION ---
+// --- LANDING PAGE ---
 const LandingPage = ({ onEnter, onInstall, installAvailable, isExiting }) => {
-    const [activeTab, setActiveTab] = useState('start'); // 'start' | 'modules' | 'about'
+    const [activeTab, setActiveTab] = useState('start'); 
 
     return (
         <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#050505] text-white font-sans overflow-hidden p-6 transition-all duration-1000 ease-in-out ${isExiting ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}>
             <AmbientBackground mode="grid" pan={{x:0, y:0}} zoom={1} />
             
-            {/* Main Content */}
             <div className="z-10 w-full max-w-4xl flex flex-col items-center animate-in fade-in zoom-in duration-1000">
-                
-                {/* Minimal Header */}
                 <div className="mb-10 md:mb-16 text-center relative group">
                     <div className="absolute -inset-10 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-full blur-3xl opacity-0 group-hover:opacity-30 transition duration-1000"></div>
-                    <h1 className="text-5xl md:text-8xl font-light tracking-[0.2em] text-white mb-2 select-none">
-                        ECHO
-                    </h1>
-                    <h1 className="text-5xl md:text-8xl font-bold tracking-tighter text-white/90 select-none">
-                        ARCHIVE
-                    </h1>
+                    <h1 className="text-5xl md:text-8xl font-light tracking-[0.2em] text-white mb-2 select-none">ECHO</h1>
+                    <h1 className="text-5xl md:text-8xl font-bold tracking-tighter text-white/90 select-none">ARCHIVE</h1>
                     <div className="h-px w-24 md:w-32 bg-cyan-500 mx-auto mt-6 md:mt-8 mb-4"></div>
-                    <p className="text-[10px] md:text-sm font-mono text-cyan-500 uppercase tracking-[0.3em] opacity-80">
-                        Intelligent Knowledge Space
-                    </p>
+                    <p className="text-[10px] md:text-sm font-mono text-cyan-500 uppercase tracking-[0.3em] opacity-80">Intelligent Knowledge Space</p>
                 </div>
 
-                {/* Modern Navigation Tabs */}
                 <div className="flex gap-6 md:gap-16 mb-10 md:mb-16 border-b border-white/10 pb-4 overflow-x-auto max-w-full px-4">
-                    <button 
-                        onClick={() => setActiveTab('start')}
-                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'start' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
-                    >
-                        Terminal
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('modules')}
-                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'modules' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
-                    >
-                        Modules
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('about')}
-                        className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'about' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}
-                    >
-                        About
-                    </button>
+                    <button onClick={() => setActiveTab('start')} className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'start' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}>Terminal</button>
+                    <button onClick={() => setActiveTab('modules')} className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'modules' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}>Modules</button>
+                    <button onClick={() => setActiveTab('about')} className={`text-xs md:text-sm font-mono tracking-widest uppercase transition-all hover:text-white whitespace-nowrap ${activeTab === 'about' ? 'text-white border-b-2 border-cyan-500 pb-4 -mb-4.5 scale-105' : 'text-gray-500'}`}>About</button>
                 </div>
 
-                {/* Dynamic Content Area */}
                 <div className="w-full min-h-[300px] flex flex-col items-center justify-start px-4">
-                    
                     {activeTab === 'start' && (
                         <div className="flex flex-col items-center gap-6 md:gap-8 w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <p className="text-center text-gray-300 font-light text-sm md:text-lg leading-relaxed mb-4">
-                                Welcome to your personal archive. <br/>
-                                Organize ideas and knowledge in a spatial constellation instead of folders.
-                            </p>
-
-                            <button 
-                                onClick={onEnter}
-                                className="group w-full py-4 md:py-5 bg-white hover:bg-cyan-400 text-black font-bold text-xs md:text-sm tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-4 rounded-sm shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]"
-                            >
-                                <span className="w-2 md:w-2.5 h-2 md:h-2.5 bg-black rounded-full animate-pulse"></span>
-                                Initialize System
-                            </button>
-
-                            {installAvailable && (
-                                <button 
-                                    onClick={onInstall}
-                                    className="w-full py-3 md:py-4 border border-white/10 hover:border-white/40 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 rounded-sm"
-                                >
-                                    <Download size={14} /> Install App
-                                </button>
-                            )}
+                            <p className="text-center text-gray-300 font-light text-sm md:text-lg leading-relaxed mb-4">Welcome to your personal archive.<br/>Organize ideas and knowledge in a spatial constellation instead of folders.</p>
+                            <button onClick={onEnter} className="group w-full py-4 md:py-5 bg-white hover:bg-cyan-400 text-black font-bold text-xs md:text-sm tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-4 rounded-sm shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]"><span className="w-2 md:w-2.5 h-2 md:h-2.5 bg-black rounded-full animate-pulse"></span>Initialize System</button>
+                            {installAvailable && (<button onClick={onInstall} className="w-full py-3 md:py-4 border border-white/10 hover:border-white/40 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-mono text-[10px] md:text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-3 rounded-sm"><Download size={14} /> Install App</button>)}
                         </div>
                     )}
-
                     {activeTab === 'modules' && (
                         <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 animate-in fade-in slide-in-from-right-4 duration-500">
-                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
-                                <div className="p-3 bg-cyan-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                                    <Bot size={24} className="text-cyan-400" />
-                                </div>
-                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Gemini AI</h3>
-                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
-                                    Intelligent assistance for auto-tagging, continuing text, and summarizing your notes.
-                                </p>
-                            </div>
-
-                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
-                                <div className="p-3 bg-blue-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                                    <Globe size={24} className="text-blue-400" />
-                                </div>
-                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">3D Space</h3>
-                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
-                                    Visual representation of your thoughts as a connected star system. Rediscover connections.
-                                </p>
-                            </div>
-
-                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group">
-                                <div className="p-3 bg-purple-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform">
-                                    <Lock size={24} className="text-purple-400" />
-                                </div>
-                                <h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Privacy First</h3>
-                                <p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">
-                                    Your data stays local in the browser. No cloud storage (unless actively using AI).
-                                </p>
-                            </div>
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group"><div className="p-3 bg-cyan-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform"><Bot size={24} className="text-cyan-400" /></div><h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Gemini AI</h3><p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">Intelligent assistance for auto-tagging, continuing text, and summarizing your notes.</p></div>
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group"><div className="p-3 bg-blue-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform"><Globe size={24} className="text-blue-400" /></div><h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">3D Space</h3><p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">Visual representation of your thoughts as a connected star system. Rediscover connections.</p></div>
+                            <div className="p-4 md:p-6 border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-sm rounded-lg flex flex-col items-center text-center group"><div className="p-3 bg-purple-900/20 rounded-full mb-3 md:mb-4 group-hover:scale-110 transition-transform"><Lock size={24} className="text-purple-400" /></div><h3 className="text-xs md:text-sm font-bold text-white uppercase mb-2 tracking-wider">Privacy First</h3><p className="text-[10px] md:text-xs text-gray-400 leading-relaxed">Your data stays local in the browser. No cloud storage (unless actively using AI).</p></div>
                         </div>
                     )}
-
                     {activeTab === 'about' && (
                         <div className="w-full max-w-lg space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-center">
-                            <div>
-                                <h2 className="text-2xl md:text-3xl font-light text-white mb-4">
-                                    About the Project
-                                </h2>
-                                <p className="text-gray-400 text-xs md:text-sm leading-relaxed">
-                                    Echo Archive was born from the idea that our thoughts are not linear. 
-                                    Why should our notes be? <br/><br/>
-                                    This project is an experimental interface between human creativity and 
-                                    artificial intelligence, wrapped in an immersive design.
-                                </p>
-                            </div>
-                            
+                            <div><h2 className="text-2xl md:text-3xl font-light text-white mb-4">About the Project</h2><p className="text-gray-400 text-xs md:text-sm leading-relaxed">Echo Archive was born from the idea that our thoughts are not linear. Why should our notes be? <br/><br/>This project is an experimental interface between human creativity and artificial intelligence, wrapped in an immersive design.</p></div>
                             <div className="pt-6 md:pt-8 border-t border-white/10 flex justify-center gap-8 md:gap-12">
-                                <div className="text-center">
-                                    <div className="text-xl md:text-2xl font-bold text-cyan-500 mb-1">1.0</div>
-                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Version</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-xl md:text-2xl font-bold text-blue-500 mb-1">React</div>
-                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Core</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-xl md:text-2xl font-bold text-purple-500 mb-1">ThreeJS</div>
-                                    <div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Engine</div>
-                                </div>
+                                <div className="text-center"><div className="text-xl md:text-2xl font-bold text-cyan-500 mb-1">1.0</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Version</div></div>
+                                <div className="text-center"><div className="text-xl md:text-2xl font-bold text-blue-500 mb-1">React</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Core</div></div>
+                                <div className="text-center"><div className="text-xl md:text-2xl font-bold text-purple-500 mb-1">ThreeJS</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Engine</div></div>
                             </div>
                         </div>
                     )}
                 </div>
-
             </div>
             
-            {/* Footer Status */}
             <div className="absolute bottom-4 md:bottom-8 left-0 right-0 flex justify-center gap-6 md:gap-12 text-[10px] md:text-xs text-gray-600 font-mono pointer-events-none select-none uppercase tracking-widest">
                 <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span> Ready</span>
                 <span>Secure</span>
@@ -359,28 +287,36 @@ const LandingPage = ({ onEnter, onInstall, installAvailable, isExiting }) => {
     );
 };
 
-// --- LEGAL MODAL ---
-const LegalModal = ({ isOpen, onClose, type }) => {
+// --- INFO MODAL (Legal & Tutorial) ---
+const InfoModal = ({ isOpen, onClose, type }) => {
     if (!isOpen) return null;
-    const content = type === 'impressum' ? LEGAL_TEXTS.impressum : LEGAL_TEXTS.privacy;
-    const title = type === 'impressum' ? 'Impressum' : 'Privacy Policy';
+    let content = "";
+    let title = "";
+    
+    switch(type) {
+        case 'impressum': content = INFO_TEXTS.impressum; title = 'Imprint'; break;
+        case 'privacy': content = INFO_TEXTS.privacy; title = 'Privacy Policy'; break;
+        case 'tutorial': content = INFO_TEXTS.tutorial; title = 'Quick Start'; break;
+        default: return null;
+    }
     
     return (
         <div className="absolute inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in duration-200 p-4">
             <div className="bg-[#0A0A0A] border border-white/10 rounded-2xl w-full max-w-2xl shadow-2xl h-[80vh] flex flex-col relative overflow-hidden">
                 <div className="flex items-center justify-between p-6 border-b border-white/10 bg-[#0A0A0A] sticky top-0 z-10">
                     <h2 className="text-xl font-light text-white flex items-center gap-2">
-                        <Shield size={20} className="text-cyan-400" /> {title}
+                        {type === 'tutorial' ? <BookOpen size={20} className="text-purple-400" /> : <Shield size={20} className="text-cyan-400" />} 
+                        {title}
                     </h2>
                     <button onClick={onClose} className="text-gray-500 hover:text-white transition-colors"><X size={24} /></button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                     <div className="prose prose-invert prose-sm max-w-none prose-headings:text-cyan-100 prose-p:text-gray-400">
-                        <ReactMarkdown children={content} />
+                        <ReactMarkdown children={content} components={MarkdownComponents} />
                     </div>
                 </div>
                 <div className="p-4 border-t border-white/10 bg-[#0A0A0A] text-center text-xs text-gray-600">
-                    Private Project. Non-Commercial.
+                    Echo Archive v1.0
                 </div>
             </div>
         </div>
@@ -407,17 +343,25 @@ const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImp
                             <button onClick={() => setSettings(s => ({...s, ambience: 'grid'}))} className={`flex-1 py-3 px-4 rounded-lg border flex items-center justify-center gap-2 transition-all ${(settings.ambience === 'grid' || settings.ambience === 'nebula') ? 'bg-cyan-900/20 border-cyan-500/30 text-cyan-300' : 'border-white/5 text-gray-500 hover:bg-white/5'}`}><Grid size={16} /> Grid</button>
                         </div>
                     </div>
+
                     <div className="space-y-3">
-                        <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Legal & Info</h3>
-                        <div className="flex gap-2">
-                            <button onClick={() => onOpenLegal('impressum')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
-                                <FileTextIcon size={14} /> Imprint
-                            </button>
-                            <button onClick={() => onOpenLegal('privacy')} className="flex-1 py-2 px-3 rounded-lg border border-white/5 bg-black/20 text-gray-400 hover:text-white hover:border-white/20 transition-all flex items-center justify-center gap-2 text-xs">
-                                <Shield size={14} /> Privacy
-                            </button>
-                        </div>
+                        <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Performance</h3>
+                        <label className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-white/5 cursor-pointer group hover:border-white/10">
+                            <div className="flex items-center gap-3">
+                                <Activity size={16} className={settings.animations ? "text-green-400" : "text-gray-600"} />
+                                <div><div className="text-sm text-gray-200">Enable Animations</div><div className="text-[10px] text-gray-500">Pulse effects & flowing lines</div></div>
+                            </div>
+                            <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.animations ? 'bg-cyan-600' : 'bg-gray-700'}`} onClick={() => setSettings(s => ({...s, animations: !s.animations}))}><div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.animations ? 'left-6' : 'left-1'}`} /></div>
+                        </label>
                     </div>
+                    
+                    <div className="space-y-3">
+                        <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Help & Info</h3>
+                        <button onClick={() => onOpenLegal('tutorial')} className="w-full py-3 px-4 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition-all flex items-center justify-center gap-2 text-xs font-bold tracking-wider uppercase">
+                            <BookOpen size={16} /> Open Quick Start Guide
+                        </button>
+                    </div>
+
                     <div className="space-y-3">
                         <h3 className="text-xs uppercase tracking-widest text-gray-500 font-bold">Data Management</h3>
                         <div className="grid grid-cols-2 gap-2">
@@ -426,6 +370,12 @@ const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImp
                             <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".json" />
                         </div>
                         <button onClick={onReset} className="w-full py-2 px-3 rounded-lg border border-red-900/30 bg-red-900/10 text-red-500 hover:bg-red-900/20 transition-all flex items-center justify-center gap-2 text-xs mt-2"><RotateCcw size={14} /> Reset Universe</button>
+                    </div>
+
+                    {/* FOOTER LEGAL LINKS */}
+                    <div className="border-t border-white/5 pt-4 mt-2 flex justify-center gap-8 opacity-60 hover:opacity-100 transition-opacity">
+                        <button onClick={() => onOpenLegal('impressum')} className="text-[10px] text-gray-500 hover:text-white uppercase tracking-widest transition-colors">Imprint</button>
+                        <button onClick={() => onOpenLegal('privacy')} className="text-[10px] text-gray-500 hover:text-white uppercase tracking-widest transition-colors">Privacy</button>
                     </div>
                 </div>
             </div>
@@ -642,8 +592,6 @@ const App = () => {
   
   const handleTouchMove = (e) => {
       if (!isDragging) return;
-      // Prevent default to stop scrolling
-      // e.preventDefault(); // removed to allow some default behaviors if needed, rely on touch-action
       const touch = e.touches[0];
       const newX = touch.clientX - dragStartRef.current.x;
       const newY = touch.clientY - dragStartRef.current.y;
@@ -851,17 +799,16 @@ const App = () => {
         onOpenLegal={handleOpenLegal}
       />
       
-      <LegalModal 
+      <InfoModal 
         isOpen={!!legalModalType} 
         onClose={() => setLegalModalType(null)} 
         type={legalModalType} 
       />
 
-      {/* Main App Content - Rendered if transitioning or entered */}
+      {/* Main App Content */}
       {(isExitingLanding || hasEntered) && (
         <>
           {/* HUD & GRAPH */}
-          {/* Mobile optimization: HUD takes 100% width unless a note is open */}
           <div className="absolute top-0 bottom-0 left-0 transition-all duration-75 ease-out z-10" style={{ width: activeNoteId ? (isMobile ? '0%' : `${100 - editorWidth}%`) : '100%' }}>
             
             {/* Top HUD Area */}
@@ -885,8 +832,12 @@ const App = () => {
             </div>
 
             {/* Note List / Star Log */}
-            <div className={`absolute top-56 left-6 bottom-6 w-80 z-30 pointer-events-auto transition-all duration-500 origin-left ${showStarLog && (!activeNoteId || !isMobile) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
-                <div className="h-full overflow-y-auto pr-2 custom-scrollbar space-y-5 pb-20">
+            <div 
+                className={`absolute top-56 left-6 w-80 z-30 transition-all duration-500 origin-left flex flex-col pointer-events-none ${showStarLog && (!activeNoteId || !isMobile) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                style={{ maxHeight: 'calc(100vh - 16rem)' }} 
+            >
+                {/* Pointer events auto ONLY for the list content, so clicks below it pass through to map */}
+                <div className="overflow-y-auto pr-2 custom-scrollbar space-y-5 pb-4 pointer-events-auto">
                     {Object.entries(groupedNotes).map(([rootTag, groupNotes]) => {
                         const isCollapsed = collapsedGroups[rootTag]; const isFocused = focusedCategory === rootTag; const groupColor = tagColors[rootTag] || tagColors.default;
                         const subGroups = groupNotes.reduce((acc, note) => { const matchingTag = note.tags.find(t => t.startsWith(rootTag)); let subCategory = '__general__'; if (matchingTag) { const parts = matchingTag.split('/'); if (parts.length > 1) subCategory = parts[1]; } if (!acc[subCategory]) acc[subCategory] = []; acc[subCategory].push(note); return acc; }, {});
@@ -904,18 +855,18 @@ const App = () => {
                 </div>
             </div>
             
-            {/* GRAPH VIEW Container with Mouse AND Touch Handlers */}
+            {/* GRAPH VIEW Container */}
             <div ref={containerRef} 
                  onMouseDown={handleMouseDown} onWheel={handleWheel} onClick={handleBackgroundClick} 
                  onTouchStart={handleTouchStart}
                  className={`w-full h-full relative overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                 style={{ touchAction: 'none' }}> {/* Prevents scroll on mobile when dragging map */}
+                 style={{ touchAction: 'none' }}>
                <GraphView notes={visibleNotes} connections={visibleConnections} activeId={activeNoteId} onSelect={setActiveNoteId} pan={pan} zoom={zoom} isDragging={isDragging} tagColors={tagColors} connectedNodeIds={connectedNodeIds} settings={settings} />
                {!activeNoteId && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-sm font-mono animate-pulse pointer-events-none select-none text-center whitespace-nowrap">{isDragging ? 'SCANNING...' : (isMobile ? 'SWIPE TO MOVE' : 'SCROLL TO ZOOM • DRAG TO MOVE')}</div>}
             </div>
           </div>
 
-          {/* EDITOR PANEL - Responsive Width */}
+          {/* EDITOR PANEL */}
           <div className={`absolute top-0 right-0 h-full bg-[#050505] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out z-40`} 
                style={{ 
                    width: isMobile ? '100%' : `${editorWidth}%`, 
@@ -1019,6 +970,8 @@ const App = () => {
                                     <button onClick={() => handleInsertMarkdown('- ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="List"><ListOrdered size={16}/></button>
                                     <button onClick={() => handleInsertMarkdown('> ')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Quote"><QuoteIcon size={16}/></button>
                                     <button onClick={() => handleInsertMarkdown('`', '`')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Code"><CodeIcon size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('[', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Link"><LinkIcon size={16}/></button>
+                                    <button onClick={() => handleInsertMarkdown('![', '](url)')} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Image"><ImageIcon size={16}/></button>
                                     
                                     <div className="h-4 w-px bg-white/10 mx-1" />
                                     
