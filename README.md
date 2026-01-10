@@ -1,63 +1,62 @@
 <div align="center">
 
-<h1>🌌 ECHO ARCHIVE</h1>
-
-<p>
-<strong>Intelligent Knowledge Space & Neural Interface</strong>
-</p>
-
-<p>
-<a href="https://www.google.com/search?q=https://echoarchive.tech">🔴 Live Demo ansehen</a> •
-<a href="#-features">✨ Features</a> •
-<a href="#-installation">🛠 Installation</a>
-</p>
-
 <br />
 
-<!-- Füge hier deinen Screenshot ein. Lade preview.png ins Repo hoch und verlinke es -->
+ＥＣＨＯ   ＡＲＣＨＩＶＥ
 
-<img src="public/preview.png" alt="Echo Archive Interface" width="100%" style="border-radius: 10px; border: 1px solid #333;">
+<p>
+<i>Intelligent Knowledge Space & Neural Interface</i>
+</p>
+
+<!--
+HINWEIS: Stelle sicher, dass 'public/preview.png' im Repo existiert.
+Falls nicht, wird das Bild nicht angezeigt.
+-->
+
+<img src="public/preview.png" alt="Echo Archive Interface" width="100%" style="border-radius: 4px; border: 1px solid #2d2d2d; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
 
 <br />
 <br />
 
 </div>
 
-🪐 Über das Projekt
+<br />
 
-Echo Archive ist ein Experiment, wie wir Wissen im digitalen Raum organisieren. Weg von starren Ordnerstrukturen und Listen, hin zu einer räumlichen Konstellation von Gedanken.
+⬡ Über das Projekt
+
+Echo Archive ist ein Experiment zur Organisation von Wissen im digitalen Raum. Wir brechen mit starren Ordnerstrukturen und linearen Listen zugunsten einer räumlichen Konstellation von Gedanken.
 
 Die App visualisiert Notizen als leuchtende Knotenpunkte in einem 3D-Universum. Ähnliche Themen finden durch ein intelligentes Tagging-System ("Gravity") automatisch zueinander. Unterstützt wird das Ganze durch Google Gemini AI, die beim Schreiben, Zusammenfassen und Kategorisieren hilft.
 
-"Thoughts are not linear. Why should our notes be?"
+Thoughts are not linear. Why should our notes be?
 
-✨ Features
+◈ Features
 
-🗺️ Spatial UI (3D Interface)
+⌖ Spatial UI (3D Interface)
 
 Interaktives Universum: Navigiere durch deine Gedanken wie durch ein Sternensystem (Pan, Zoom, Orbit).
 
-Responsive Design: Funktioniert nahtlos auf Desktop, Tablet und Mobile (Touch-optimiert).
+Responsive Design: Nahtlose Erfahrung auf Desktop, Tablet und Mobile (Touch-optimiert).
 
 Visuelle Verbindungen: Notizen mit gleichen Tags werden automatisch visuell verknüpft.
 
-🧠 AI Core (Powered by Gemini)
+✦ AI Core (Powered by Gemini)
 
-Auto-Tagging (✨): Die KI analysiert deinen Text und schlägt passende Kategorien vor.
+Auto-Tagging: Die KI analysiert deinen Text und schlägt passende Kategorien vor.
 
-Smart Continue (🪄): Schreibblockade? Die KI schreibt deinen Gedanken kontextbasiert weiter.
+Smart Continue: Schreibblockade? Die KI führt deinen Gedanken kontextbasiert weiter.
 
-Abstract Generator (🤖): Erstellt vollautomatisch eine kurze Zusammenfassung deiner Notiz.
+Abstract Generator: Erstellt vollautomatisch eine kurze Zusammenfassung deiner Notiz.
 
-🛡️ Privacy & Tech
+🔒 Privacy & Tech
 
-Local First: Alle Daten werden im localStorage deines Browsers gespeichert. Keine Datenbank, kein Tracking deiner Gedanken.
+Local First: Alle Daten liegen im localStorage deines Browsers. Keine Datenbank, kein Tracking.
 
-PWA Ready: Kann als native App auf dem Homescreen installiert werden.
+PWA Ready: Installierbar als native App auf dem Homescreen.
 
 Minimalismus: Ein "Distraction-Free" Editor im Dark Mode.
 
-🛠 Installation & Setup
+⚙ Installation & Setup
 
 Möchtest du das Projekt lokal auf deinem Rechner laufen lassen?
 
@@ -72,9 +71,9 @@ cd echo-archive
 npm install
 
 
-3. Environment Variables (Wichtig für KI!)
+3. Environment Variables
 
-Damit die KI-Funktionen lokal funktionieren, brauchst du einen Google Gemini API Key.
+Für die KI-Funktionen wird ein Google Gemini API Key benötigt.
 
 Erstelle eine Datei namens .env im Hauptverzeichnis.
 
@@ -83,16 +82,16 @@ Füge deinen Key ein:
 VITE_GEMINI_API_KEY=Dein_Google_API_Key_Hier
 
 
-(Du bekommst einen kostenlosen Key im Google AI Studio)
+(Kostenloser Key erhältlich im Google AI Studio)
 
 4. Starten
 
 npm run dev
 
 
-Die App läuft jetzt unter http://localhost:5173.
+Das Interface ist nun unter http://localhost:5173 erreichbar.
 
-🎮 Bedienung
+⌘ Bedienung
 
 Aktion
 
@@ -124,7 +123,7 @@ Sidebar (Rechts)
 
 Fullscreen Overlay
 
-🏗️ Tech Stack
+⌬ Tech Stack
 
 Frontend: React 18
 
@@ -138,13 +137,15 @@ Icons: Lucide React
 
 AI: Google Generative AI SDK (Gemini 2.5 Flash)
 
-⚖️ Lizenz & Rechtliches
+§ Lizenz & Rechtliches
 
 Dieses Projekt ist ein privates Showcase.
 Die Inhalte der Demo-Notizen und das Design sind urheberrechtlich geschützt.
 Der Code darf für Lernzwecke genutzt werden (MIT License).
 
 Impressum & Datenschutz: Siehe Live-Seite.
+
+<br />
 
 <div align="center">
 <small>Built with ❤️ and ☕ by [Dein Name] in 2025</small>
