@@ -8,11 +8,6 @@
 <i>Intelligent Knowledge Space & Neural Interface</i>
 </p>
 
-<!--
-HINWEIS: Stelle sicher, dass 'public/preview.png' im Repo existiert.
-Falls nicht, wird das Bild nicht angezeigt.
--->
-
 <img src="public/preview.png" alt="Echo Archive Interface" width="100%" style="border-radius: 4px; border: 1px solid #2d2d2d; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
 
 <br />
@@ -32,72 +27,91 @@ Thoughts are not linear. Why should our notes be?
 
 ◈ Features
 
-⌖ Spatial UI (3D Interface)
+Wir haben die Funktionalitäten in drei Kernbereiche unterteilt:
 
-Interaktives Universum: Navigiere durch deine Gedanken wie durch ein Sternensystem (Pan, Zoom, Orbit).
+Modul
 
-Responsive Design: Nahtlose Erfahrung auf Desktop, Tablet und Mobile (Touch-optimiert).
+Beschreibung & Fähigkeiten
 
-Visuelle Verbindungen: Notizen mit gleichen Tags werden automatisch visuell verknüpft.
+⌖ Spatial UI
 
-✦ AI Core (Powered by Gemini)
+• Interaktives Universum: Navigiere durch deine Gedanken wie durch ein Sternensystem (Pan, Zoom, Orbit).
 
-Auto-Tagging: Die KI analysiert deinen Text und schlägt passende Kategorien vor.
 
-Smart Continue: Schreibblockade? Die KI führt deinen Gedanken kontextbasiert weiter.
 
-Abstract Generator: Erstellt vollautomatisch eine kurze Zusammenfassung deiner Notiz.
+• Responsive Design: Nahtlose Erfahrung auf Desktop, Tablet und Mobile (Touch-optimiert).
 
-🔒 Privacy & Tech
 
-Local First: Alle Daten liegen im localStorage deines Browsers. Keine Datenbank, kein Tracking.
 
-PWA Ready: Installierbar als native App auf dem Homescreen.
+• Visuelle Verbindungen: Notizen mit gleichen Tags werden automatisch visuell verknüpft.
 
-Minimalismus: Ein "Distraction-Free" Editor im Dark Mode.
+✦ AI Core
+
+• Auto-Tagging: Die KI analysiert deinen Text und schlägt passende Kategorien vor.
+
+
+
+• Smart Continue: Schreibblockade? Die KI führt deinen Gedanken kontextbasiert weiter.
+
+
+
+• Abstract Generator: Erstellt vollautomatisch eine kurze Zusammenfassung deiner Notiz.
+
+🔒 Tech & Privacy
+
+• Local First: Alle Daten liegen im localStorage deines Browsers. Keine Datenbank, kein Tracking.
+
+
+
+• PWA Ready: Installierbar als native App auf dem Homescreen.
+
+
+
+• Minimalismus: Ein "Distraction-Free" Editor im Dark Mode.
 
 ⚙ Installation & Setup
 
-Möchtest du das Projekt lokal auf deinem Rechner laufen lassen?
+Du kannst das Projekt mit wenigen Befehlen lokal aufsetzen.
 
-1. Repository klonen
+1. Quick Start
 
-git clone [https://github.com/DEIN-USERNAME/echo-archive.git](https://github.com/DEIN-USERNAME/echo-archive.git)
+Führe diese Befehle nacheinander in deinem Terminal aus:
+
+# Repository klonen
+git clone [https://github.com/dewtm/echo-archive.git](https://github.com/dewtm/echo-archive.git)
+
+# In das Verzeichnis wechseln
 cd echo-archive
 
-
-2. Abhängigkeiten installieren
-
+# Abhängigkeiten installieren
 npm install
 
+# Entwicklungsserver starten
+npm run dev
 
-3. Environment Variables
 
-Für die KI-Funktionen wird ein Google Gemini API Key benötigt.
+2. Environment Variables (Wichtig für KI!)
 
-Erstelle eine Datei namens .env im Hauptverzeichnis.
+Damit die KI-Funktionen (Gemini) funktionieren, benötigst du einen API Key.
 
-Füge deinen Key ein:
+Erstelle eine Datei namens .env im Hauptverzeichnis des Projekts.
+
+Füge den folgenden Inhalt ein:
 
 VITE_GEMINI_API_KEY=Dein_Google_API_Key_Hier
 
 
-(Kostenloser Key erhältlich im Google AI Studio)
-
-4. Starten
-
-npm run dev
-
-
-Das Interface ist nun unter http://localhost:5173 erreichbar.
+Hinweis: Einen kostenlosen API Key erhältst du im Google AI Studio. Ohne diesen Key funktioniert die App, aber die KI-Features (Zauberstab, Auto-Tagging) geben keine Antwort.
 
 ⌘ Bedienung
 
+Das Interface passt sich automatisch an dein Gerät an.
+
 Aktion
 
-Desktop (Maus)
+🖥️ Desktop (Maus)
 
-Mobile (Touch)
+📱 Mobile (Touch)
 
 Bewegen
 
@@ -148,5 +162,5 @@ Impressum & Datenschutz: Siehe Live-Seite.
 <br />
 
 <div align="center">
-<small>Built with ❤️ and ☕ by [Dein Name] in 2025</small>
+<small>Built with ❤️ and ☕ by [Calvin] in 2025</small>
 </div>
