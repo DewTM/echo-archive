@@ -8,12 +8,13 @@ import {
 } from 'lucide-react';
 
 /**
- * ECHO ARCHIVE v1.0 (Feature Complete)
+ * ECHO ARCHIVE v1.0 (Tag Editing & Terms)
  * Features:
- * - 📚 Content: Enhanced Manual with Image & Tag Guide
- * - ⚙️ Settings: Animation Toggle restored, Tutorial Popup added
- * - 🛠️ Toolbar: Link & Image buttons added
- * - 📱 Core: Mobile Touch & Responsive Layout preserved
+ * - ✏️ Tag Editing: Click on tags to rename them inline
+ * - ⚖️ Legal Update: Removed Impressum, added Terms of Service
+ * - 📚 Content: Manual & Tutorial preserved
+ * - ⚙️ Settings: Animation Toggle & Tutorial Popup
+ * - 📱 Core: Mobile Touch & Responsive Layout
  */
 
 // --- Config: Palettes ---
@@ -120,7 +121,7 @@ Tags are the gravity of this system. Notes with the same tag will group together
 - **Basic Tag:** \`#idea\` (Creates a red node)
 - **Sub-Tag:** \`#work/project-a\` (Groups under 'work')
 
-Try adding \`#welcome\` to a new note to connect it here!
+*Tip: Click on a tag in the editor to rename it!*
 
 ## 📝 Writing with Markdown
 Use the toolbar above or type directly:
@@ -143,37 +144,39 @@ Use the toolbar above or type directly:
 ];
 
 // --- INFO TEXTS CONSTANTS ---
-// ⬇️⬇️⬇️ ENTER YOUR DATA HERE ⬇️⬇️⬇️
 const INFO_TEXTS = {
-    impressum: `
-# Imprint (Impressum)
+    terms: `
+# Terms of Service
 
-## Operator
-Calvin Lieberenz
+## 1. Introduction
+Welcome to Echo Archive. By accessing our website, you agree to be bound by these Terms of Service.
 
-## Contact
-E-Mail: mail@clieberenz
+## 2. Use of Service
+Echo Archive is provided "as is". It is a tool for personal knowledge management. You are responsible for the data you enter.
 
-## Editorial Responsibility
-Calvin Lieberenz
+## 3. Data & Privacy
+All data is stored locally in your browser's LocalStorage. We do not have access to your notes on our servers. 
+Exception: If you use the AI features, data is transiently processed by Google's API but not stored by us.
 
-## Note
-This is a private, non-commercial project for demonstration purposes.
-No revenue is generated.
+## 4. Disclaimer
+We make no warranties regarding the reliability or availability of this service. Use it at your own risk. Always keep backups of important data.
     `,
     privacy: `
-# Privacy Policy (Datenschutzerklärung)
+# Privacy Policy
 
 ## 1. General Information
-The following notes provide a simple overview of what happens to your personal data when you visit this website.
+We take the protection of your personal data very seriously. This policy explains how we handle your data.
 
-## 2. Hosting (Netlify)
-We host the content of our website with the following provider: Netlify Inc.
-The use of Netlify is based on Art. 6 para. 1 lit. f GDPR (DSGVO).
+## 2. Local Storage
+This application operates on a "Local First" principle. Your notes, tags, and settings are stored directly on your device (in the browser's LocalStorage). 
 
-## 3. AI Functions (Google Gemini API)
-This application uses functions of the Google Gemini API for text generation.
-Text is only transmitted to Google upon your explicit request (button click). No personal data is stored permanently unless included in the text itself.
+## 3. Hosting (Netlify)
+We host this application on Netlify. Netlify may collect standard server logs (IP addresses) for security and performance monitoring.
+
+## 4. AI Functions (Google Gemini API)
+When you explicitly use AI features (e.g., Auto-Tagging), the text content of the active note is sent to Google's Gemini API for processing. 
+- Google does not use this data to train their models (based on current API terms for standard usage).
+- No data is permanently stored by us.
     `,
     tutorial: `
 # Quick Start Tutorial
@@ -185,17 +188,14 @@ Click the **+ NEW ROOT** button in the top left (or bottom menu on mobile) to sp
 Use **Tags** (e.g., \`#project\`) to automatically link notes. Notes with the same tag share the same color and gravitate towards each other.
 You can also use **LINK NEW** inside a note to create a direct manual connection.
 
-## 3. Navigate 3D Space
-- **Desktop:**
-  - Right-Click + Drag to Move
-  - Scroll to Zoom
-  - Left-Click to Select
-- **Mobile:**
-  - One finger swipe to Move
-  - Pinch to Zoom
-  - Tap to Select
+## 3. Edit Tags
+Click on any tag inside the editor to rename it. Changes are applied immediately.
 
-## 4. Use AI
+## 4. Navigate 3D Space
+- **Desktop:** Right-Click + Drag to Move, Scroll to Zoom.
+- **Mobile:** One finger swipe to Move, Pinch to Zoom.
+
+## 5. Use AI
 Stuck? Use the **Magic Wand** 🪄 to let the AI continue your sentence, or the **Sparkles** ✨ to automatically find the right tags for your text.
     `
 };
@@ -269,7 +269,7 @@ const LandingPage = ({ onEnter, onInstall, installAvailable, isExiting }) => {
                         <div className="w-full max-w-lg space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-center">
                             <div><h2 className="text-2xl md:text-3xl font-light text-white mb-4">About the Project</h2><p className="text-gray-400 text-xs md:text-sm leading-relaxed">Echo Archive was born from the idea that our thoughts are not linear. Why should our notes be? <br/><br/>This project is an experimental interface between human creativity and artificial intelligence, wrapped in an immersive design.</p></div>
                             <div className="pt-6 md:pt-8 border-t border-white/10 flex justify-center gap-8 md:gap-12">
-                                <div className="text-center"><div className="text-xl md:text-2xl font-bold text-cyan-500 mb-1">1.0</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Version</div></div>
+                                <div className="text-center"><div className="text-xl md:text-2xl font-bold text-cyan-500 mb-1">1.3</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Version</div></div>
                                 <div className="text-center"><div className="text-xl md:text-2xl font-bold text-blue-500 mb-1">React</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Core</div></div>
                                 <div className="text-center"><div className="text-xl md:text-2xl font-bold text-purple-500 mb-1">ThreeJS</div><div className="text-[9px] md:text-[10px] text-gray-600 uppercase tracking-widest">Engine</div></div>
                             </div>
@@ -294,7 +294,7 @@ const InfoModal = ({ isOpen, onClose, type }) => {
     let title = "";
     
     switch(type) {
-        case 'impressum': content = INFO_TEXTS.impressum; title = 'Imprint'; break;
+        case 'terms': content = INFO_TEXTS.terms; title = 'Terms of Service'; break;
         case 'privacy': content = INFO_TEXTS.privacy; title = 'Privacy Policy'; break;
         case 'tutorial': content = INFO_TEXTS.tutorial; title = 'Quick Start'; break;
         default: return null;
@@ -316,7 +316,7 @@ const InfoModal = ({ isOpen, onClose, type }) => {
                     </div>
                 </div>
                 <div className="p-4 border-t border-white/10 bg-[#0A0A0A] text-center text-xs text-gray-600">
-                    Echo Archive v1.0
+                    Echo Archive v1.3
                 </div>
             </div>
         </div>
@@ -374,7 +374,7 @@ const SettingsModal = ({ isOpen, onClose, settings, setSettings, onExport, onImp
 
                     {/* FOOTER LEGAL LINKS */}
                     <div className="border-t border-white/5 pt-4 mt-2 flex justify-center gap-8 opacity-60 hover:opacity-100 transition-opacity">
-                        <button onClick={() => onOpenLegal('impressum')} className="text-[10px] text-gray-500 hover:text-white uppercase tracking-widest transition-colors">Imprint</button>
+                        <button onClick={() => onOpenLegal('terms')} className="text-[10px] text-gray-500 hover:text-white uppercase tracking-widest transition-colors">Terms</button>
                         <button onClick={() => onOpenLegal('privacy')} className="text-[10px] text-gray-500 hover:text-white uppercase tracking-widest transition-colors">Privacy</button>
                     </div>
                 </div>
@@ -410,6 +410,8 @@ const App = () => {
   const [isExitingLanding, setIsExitingLanding] = useState(false); 
   const [installPrompt, setInstallPrompt] = useState(null); 
   const [isMobile, setIsMobile] = useState(false);
+  const [editingTagIndex, setEditingTagIndex] = useState(null);
+  const [editTagInputValue, setEditTagInputValue] = useState('');
 
   // Check for Mobile
   useEffect(() => {
@@ -467,7 +469,6 @@ const App = () => {
       }, 1000); 
   };
   
-  // Funktion um zur Landing Page zurückzukehren
   const handleReturnToLanding = () => {
     setHasEntered(false);
     setIsExitingLanding(false);
@@ -678,6 +679,50 @@ const App = () => {
       }));
   };
 
+  // --- TAG EDITING HANDLERS ---
+  const handleTagClick = (index, tag) => {
+    setEditingTagIndex(index);
+    setEditTagInputValue(tag);
+  };
+
+  const handleTagEditChange = (e) => {
+    setEditTagInputValue(e.target.value);
+  };
+
+  const saveTagChange = (index) => {
+    if (!editTagInputValue.trim()) {
+      setEditingTagIndex(null);
+      return;
+    }
+
+    const cleanNewTag = editTagInputValue.trim().toLowerCase().replace(/^#/, '');
+    
+    // Update colors for new tag root if needed
+    const root = cleanNewTag.split('/')[0];
+    if (!tagColors[root] && root !== 'uncategorized') {
+        const randomColor = NEON_PALETTE[Math.floor(Math.random() * NEON_PALETTE.length)];
+        setTagColors(prev => ({ ...prev, [root]: randomColor }));
+    }
+
+    setNotes(prev => prev.map(n => {
+        if (n.id === activeNoteId) {
+            const newTags = [...n.tags];
+            newTags[index] = cleanNewTag;
+            // Remove duplicates if the edit created one
+            return { ...n, tags: [...new Set(newTags)] };
+        }
+        return n;
+    }));
+    setEditingTagIndex(null);
+  };
+
+  const handleTagEditKeyDown = (e, index) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        saveTagChange(index);
+    }
+  };
+
   // --- GEMINI FUNCTIONS ---
   
   const handleAiAutoTag = async () => {
@@ -805,10 +850,11 @@ const App = () => {
         type={legalModalType} 
       />
 
-      {/* Main App Content */}
+      {/* Main App Content - Rendered if transitioning or entered */}
       {(isExitingLanding || hasEntered) && (
         <>
           {/* HUD & GRAPH */}
+          {/* Mobile optimization: HUD takes 100% width unless a note is open */}
           <div className="absolute top-0 bottom-0 left-0 transition-all duration-75 ease-out z-10" style={{ width: activeNoteId ? (isMobile ? '0%' : `${100 - editorWidth}%`) : '100%' }}>
             
             {/* Top HUD Area */}
@@ -831,7 +877,7 @@ const App = () => {
               </div>
             </div>
 
-            {/* Note List / Star Log */}
+            {/* Note List / Star Log - FIX: Dynamic Height */}
             <div 
                 className={`absolute top-56 left-6 w-80 z-30 transition-all duration-500 origin-left flex flex-col pointer-events-none ${showStarLog && (!activeNoteId || !isMobile) ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
                 style={{ maxHeight: 'calc(100vh - 16rem)' }} 
@@ -855,18 +901,18 @@ const App = () => {
                 </div>
             </div>
             
-            {/* GRAPH VIEW Container */}
+            {/* GRAPH VIEW Container with Mouse AND Touch Handlers */}
             <div ref={containerRef} 
                  onMouseDown={handleMouseDown} onWheel={handleWheel} onClick={handleBackgroundClick} 
                  onTouchStart={handleTouchStart}
                  className={`w-full h-full relative overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-                 style={{ touchAction: 'none' }}>
+                 style={{ touchAction: 'none' }}> {/* Prevents scroll on mobile when dragging map */}
                <GraphView notes={visibleNotes} connections={visibleConnections} activeId={activeNoteId} onSelect={setActiveNoteId} pan={pan} zoom={zoom} isDragging={isDragging} tagColors={tagColors} connectedNodeIds={connectedNodeIds} settings={settings} />
                {!activeNoteId && <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-sm font-mono animate-pulse pointer-events-none select-none text-center whitespace-nowrap">{isDragging ? 'SCANNING...' : (isMobile ? 'SWIPE TO MOVE' : 'SCROLL TO ZOOM • DRAG TO MOVE')}</div>}
             </div>
           </div>
 
-          {/* EDITOR PANEL */}
+          {/* EDITOR PANEL - Responsive Width */}
           <div className={`absolute top-0 right-0 h-full bg-[#050505] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out z-40`} 
                style={{ 
                    width: isMobile ? '100%' : `${editorWidth}%`, 
@@ -919,17 +965,38 @@ const App = () => {
                             
                             {/* TAG INPUT AREA */}
                             <div className="flex flex-wrap gap-2 items-center">
-                                {activeNote.tags.map(tag => {
+                                {activeNote.tags.map((tag, index) => {
                                     const parts = tag.split('/');
                                     const root = parts[0];
                                     const color = tagColors[root] || tagColors.default;
+                                    
+                                    if (editingTagIndex === index) {
+                                      return (
+                                        <input
+                                          key={index}
+                                          autoFocus
+                                          value={editTagInputValue}
+                                          onChange={handleTagEditChange}
+                                          onBlur={() => saveTagChange(index)}
+                                          onKeyDown={(e) => handleTagEditKeyDown(e, index)}
+                                          className="px-3 py-1 rounded text-xs font-mono border bg-black/50 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 uppercase tracking-wider w-32"
+                                          style={{ borderColor: color, color: color }}
+                                        />
+                                      );
+                                    }
+
                                     return (
-                                        <span key={tag} style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider group cursor-default">
+                                        <span 
+                                            key={tag} 
+                                            onClick={(e) => { e.stopPropagation(); handleTagClick(index, tag); }}
+                                            style={{ borderColor: `${color}33`, color: color, backgroundColor: `${color}08` }} 
+                                            className="px-3 py-1 rounded text-xs font-mono border flex items-center gap-1.5 uppercase tracking-wider group cursor-pointer hover:bg-white/5 transition-colors"
+                                        >
                                             <Hash size={10} className="opacity-50" />
-                                            {parts.map((part, index) => (
-                                                <React.Fragment key={index}>
-                                                    {index > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}
-                                                    <span className={index === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span>
+                                            {parts.map((part, i) => (
+                                                <React.Fragment key={i}>
+                                                    {i > 0 && <ChevronRight size={10} className="opacity-50 mx-0.5" />}
+                                                    <span className={i === parts.length - 1 ? "font-bold" : "opacity-70"}>{part}</span>
                                                 </React.Fragment>
                                             ))}
                                             <button onClick={(e) => { e.stopPropagation(); handleRemoveTag(tag); }} className="ml-1 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"><X size={10} /></button>
